@@ -1,4 +1,5 @@
-tex.aux
-tex.log
-tex.pdf
-_minted-tex
+main.aux
+main.log
+main.pdf
+texput.log
+_minted-main
