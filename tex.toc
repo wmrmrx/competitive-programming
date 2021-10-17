@@ -1,0 +1,4 @@
+\contentsline {section}{\numberline {1}Python}{2}{}%
+\contentsline {subsection}{\numberline {1.1}Fenwick Tree}{2}{}%
+\contentsline {section}{\numberline {2}C++}{2}{}%
+\contentsline {subsection}{\numberline {2.1}Fenwick Tree}{2}{}%
