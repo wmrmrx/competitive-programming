@@ -1,9 +1,9 @@
 void dijkstra(int st, int n, vector<int> grafo[], vector<int> peso[], int dist[]) {
 	int d_inf = 1<<30;
-	fill(dist+1,dist+n+1,d_inf);
+	fill(dist,dist+n,d_inf);
 	dist[st] = 0;
 	set<pair<int,int>> s;
-	for(int i=1;i<=n;i++) {
+	for(int i=0;i<n;i++) {
 		s.insert({dist[i],i});
 	}
 	while(!s.empty()) {
