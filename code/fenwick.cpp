@@ -1,7 +1,7 @@
 struct Fenwick {
 	int n;
 	vector<int> bit;
-	void init(int sz) {
+	Fenwick(int sz) {
 		n = sz;
 		bit = vector<int>(n+1);
 	}
