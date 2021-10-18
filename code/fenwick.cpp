@@ -3,8 +3,7 @@ struct Fenwick {
 	vector<int> bit;
 	void init(int sz) {
 		n = sz;
-		vector<int> tmp(n+1);
-		bit = tmp;
+		bit = vector<int>(n+1);
 	}
 	void update(int id, int val) {
 		while(id <= n) {
