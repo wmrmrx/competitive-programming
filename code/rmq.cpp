@@ -1,9 +1,7 @@
 template <typename T> struct RMQ {
-	long long n, log;
 	vector<vector<T>> dp;
-	void init(T v[], long long sz) {
-		n = sz;
-		log = 63-__builtin_clzll(n);
+	void init(T v[], long long n) {
+		long long log = 63-__builtin_clzll(n);
 		dp = vector<vector<T>>(n+1,vector<T>(log+1));
 		for(int i=1;i<=n;i++) {
 			dp[i][0] = v[i];
