@@ -1,13 +1,13 @@
 void dijkstra(int st, int n, vector<int> graph[], vector<int> weight[], int dist[]) {
-	int d_inf = 1<<30;
-	fill(dist,dist+n+1,d_inf);
+	const int INF = 1<<30;
+	fill(dist,dist+n+1,INF);
 	dist[st] = 0;
 	set<pair<int,int>> s;
 	for(int i=1;i<=n;i++) {
 		s.insert({dist[i],i});
 	}
 	while(!s.empty()) {
-		if(s.begin()->first == d_inf) {
+		if(s.begin()->first == INF) {
 			break;
 		}
 		int cur = s.begin()->second;
