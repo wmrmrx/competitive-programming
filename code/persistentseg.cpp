@@ -1,10 +1,8 @@
 struct PersistentSeg {
 	struct Node {
-		int lrange, rrange;
 		Node *lchild, *rchild;
 		int data;
-		Node(int _lrange, int _rrange) {
-			lrange = _lrange; rrange = _rrange;
+		Node() {
 			lchild = rchild = NULL;
 			data = 0;
 		}
@@ -13,56 +11,57 @@ struct PersistentSeg {
 	vector<Node*> root;
 	PersistentSeg(int _max_range, int v[]) {
 		max_range = _max_range;
-		root.push_back(new Node(1,max_range));	
-		build(root[0],v);
+		root.push_back(new Node);	
+		build(root[0],1,max_range,v);
 	}
 	void update_node_data(Node* cur) {
 		cur->data = cur->lchild->data + cur->rchild->data;
 	}
-	void build(Node* cur, int v[]) {
-		if(cur->lrange == cur->rrange) {
-			cur->data = v[cur->lrange];
+	void build(Node* cur, int nl, int nr, int v[]) {
+		if(nl == nr) {
+			cur->data = v[nl];
 			return;
 		}
-		int mid = (cur->lrange+cur->rrange)/2;
-		cur->lchild = new Node(cur->lrange,mid);
-		cur->rchild = new Node(mid+1,cur->rrange);
-		build(cur->lchild,v); 
-		build(cur->rchild,v);
+		int mid = (nl+nr)/2;
+		cur->lchild = new Node;
+		cur->rchild = new Node;
+		build(cur->lchild,nl,mid,v); 
+		build(cur->rchild,mid+1,nr,v);
 		update_node_data(cur);
 	}
-	void upd(Node* cur, Node* prev, int pos, int val) {
-		if(cur->lrange == cur->rrange) {
+	void upd(Node* cur, Node* prev, int nl, int nr, int pos, int val) {
+		if(nl == nr) {
 			cur->data = val;
 			return;
 		}
-		int mid = (cur->lrange+cur->rrange)/2;
+		int mid = (nl+nr)/2;
 		if(pos <= mid) {
-			cur->lchild = new Node(cur->lrange,mid);
+			cur->lchild = new Node;
 			cur->rchild = prev->rchild;
-			upd(cur->lchild,prev->lchild,pos,val);
+			upd(cur->lchild,prev->lchild,nl,mid,pos,val);
 		} else {
-			cur->rchild = new Node(mid+1,cur->rrange);
+			cur->rchild = new Node;
 			cur->lchild = prev->lchild;
-			upd(cur->rchild,prev->rchild,pos,val);
+			upd(cur->rchild,prev->rchild,mid+1,nr,pos,val);
 		}
 		update_node_data(cur);
 	}
 	void update(int pos, int val) {
 		Node* prev = root.back();	
-		root.push_back(new Node(1,max_range));
-		upd(root.back(),prev,pos,val);
+		root.push_back(new Node);
+		upd(root.back(),prev,1,max_range,pos,val);
 	}
-	int qry(Node* cur, int l, int r) {
-		if(cur->rrange < l || r < cur->lrange) {
+	int qry(Node* cur, int nl, int nr, int ql, int qr) {
+		if(nr < ql || qr < nl) {
 			return 0;
 		}
-		if(l <= cur->lrange && cur->rrange <= r) {
+		if(ql <= nl && nr <= qr) {
 			return cur->data;
 		}
-		return qry(cur->lchild,l,r) + qry(cur->rchild,l,r);
+		int mid = (nl+nr)/2;
+		return qry(cur->lchild,nl,mid,ql,qr) + qry(cur->rchild,mid+1,nr,ql,qr);
 	}
 	int query(int l, int r, int time) {
-		return qry(root[time],l,r);
+		return qry(root[time],1,max_range,l,r);
 	}
 };
