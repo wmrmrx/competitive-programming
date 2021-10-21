@@ -1,14 +1,17 @@
 struct PersistentSeg {
 	struct Node {
-		int l, r;
+		int lrange, rrange;
 		Node *lchild, *rchild;
 		int data;
-		Node(int _l, int _r) {
-			l = _l; r = _r;
+		Node(int _lrange, int _rrange) {
+			lrange = _lrange; rrange = _rrange;
 			lchild = rchild = NULL;
 			data = 0;
 		}
 	};
+	void update_node_data(Node* cur) {
+		cur->data = cur->lchild->data + cur->rchild->data;
+	}
 	int max_range;
 	vector<Node*> root;
 	PersistentSeg(int _max_range, int v[]) {
@@ -17,33 +20,33 @@ struct PersistentSeg {
 		build(root[0],v);
 	}
 	void build(Node* cur, int v[]) {
-		if(cur->l == cur->r) {
-			cur->data = v[cur->l];
+		if(cur->lrange == cur->rrange) {
+			cur->data = v[cur->lrange];
 			return;
 		}
-		int mid = (cur->l+cur->r)/2;
-		cur->lchild = new Node(cur->l,mid);
-		cur->rchild = new Node(mid+1,cur->r);
+		int mid = (cur->lrange+cur->rrange)/2;
+		cur->lchild = new Node(cur->lrange,mid);
+		cur->rchild = new Node(mid+1,cur->rrange);
 		build(cur->lchild,v); 
 		build(cur->rchild,v);
-		cur->data = cur->lchild->data + cur->rchild->data;
+		update_node_data(cur);
 	}
 	void upd(Node* cur, Node* prev, int pos, int val) {
-		if(cur->l == cur->r) {
+		if(cur->lrange == cur->rrange) {
 			cur->data = val;
 			return;
 		}
-		int mid = (cur->l+cur->r)/2;
+		int mid = (cur->lrange+cur->rrange)/2;
 		if(pos <= mid) {
-			cur->lchild = new Node(cur->l,mid);
+			cur->lchild = new Node(cur->lrange,mid);
 			cur->rchild = prev->rchild;
 			upd(cur->lchild,prev->lchild,pos,val);
 		} else {
-			cur->rchild = new Node(mid+1,cur->r);
+			cur->rchild = new Node(mid+1,cur->rrange);
 			cur->lchild = prev->lchild;
 			upd(cur->rchild,prev->rchild,pos,val);
 		}
-		cur->data = cur->lchild->data + cur->rchild->data;
+		update_node_data(cur);
 	}
 	void update(int pos, int val) {
 		Node* prev = root.back();	
@@ -51,10 +54,10 @@ struct PersistentSeg {
 		upd(root.back(),prev,pos,val);
 	}
 	int qry(Node* cur, int l, int r) {
-		if(cur->r < l || r < cur->l) {
+		if(cur->rrange < l || r < cur->lrange) {
 			return 0;
 		}
-		if(l <= cur->l && cur->r <= r) {
+		if(l <= cur->lrange && cur->rrange <= r) {
 			return cur->data;
 		}
 		return qry(cur->lchild,l,r) + qry(cur->rchild,l,r);
