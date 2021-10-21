@@ -9,15 +9,15 @@ struct PersistentSeg {
 			data = 0;
 		}
 	};
-	void update_node_data(Node* cur) {
-		cur->data = cur->lchild->data + cur->rchild->data;
-	}
 	int max_range;
 	vector<Node*> root;
 	PersistentSeg(int _max_range, int v[]) {
 		max_range = _max_range;
 		root.push_back(new Node(1,max_range));	
 		build(root[0],v);
+	}
+	void update_node_data(Node* cur) {
+		cur->data = cur->lchild->data + cur->rchild->data;
 	}
 	void build(Node* cur, int v[]) {
 		if(cur->lrange == cur->rrange) {
