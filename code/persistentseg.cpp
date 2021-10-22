@@ -14,9 +14,6 @@ struct PersistentSeg {
 		root.push_back(new Node);	
 		build(root[0],1,max_range,v);
 	}
-	void update_node_data(Node* cur) {
-		cur->data = cur->lchild->data + cur->rchild->data;
-	}
 	void build(Node* cur, int nl, int nr, int v[]) {
 		if(nl == nr) {
 			cur->data = v[nl];
@@ -27,7 +24,7 @@ struct PersistentSeg {
 		cur->rchild = new Node;
 		build(cur->lchild,nl,mid,v); 
 		build(cur->rchild,mid+1,nr,v);
-		update_node_data(cur);
+		cur->data = cur->lchild->data + cur->rchild->data;
 	}
 	void upd(Node* cur, Node* prev, int nl, int nr, int pos, int val) {
 		if(nl == nr) {
@@ -44,7 +41,7 @@ struct PersistentSeg {
 			cur->lchild = prev->lchild;
 			upd(cur->rchild,prev->rchild,mid+1,nr,pos,val);
 		}
-		update_node_data(cur);
+		cur->data = cur->lchild->data + cur->rchild->data;
 	}
 	void update(int pos, int val) {
 		Node* prev = root.back();	

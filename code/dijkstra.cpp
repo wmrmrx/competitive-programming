@@ -1,5 +1,4 @@
 void dijkstra(int st, int n, vector<int> graph[], vector<int> weight[], int dist[]) {
-	const int INF = 1<<30;
 	fill(dist,dist+n+1,INF);
 	dist[st] = 0;
 	set<pair<int,int>> s;

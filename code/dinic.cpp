@@ -2,7 +2,6 @@ struct Dinic {
 	struct DinicEdge {
 		int to, cap, flow;
 	};
-	const int INF = 1<<30;
 	int n;
 	vector<vector<int>> g;
 	vector<DinicEdge> e;
