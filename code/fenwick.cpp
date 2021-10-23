@@ -1,12 +1,19 @@
 struct Fenwick {
-	int n;
+	int size;
 	vector<int> bit;
-	Fenwick(int sz) {
-		n = sz;
+	Fenwick(int _size) {
+		size = _size;
+		bit = vector<int>(size+1);
+	}
+	Fenwick(int _size, int v[]) {
+		size = _size;
 		bit = vector<int>(n+1);
+		for(int i=1;i<=sz;i++) {
+			update(i,v[i]);
+		}
 	}
 	void update(int id, int val) {
-		while(id <= n) {
+		while(id <= size) {
 			bit[id] += val;
 			id += id&-id;
 		}

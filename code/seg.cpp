@@ -7,13 +7,13 @@ struct Seg {
 			data = INF;
 		}
 	};
-	int max_range;
+	int size;
 	vector<Node> nodes;
-	Seg(int _max_range, int v[]) {
-		max_range = _max_range;
-		nodes.reserve(2*max_range-1);
+	Seg(int _size, int v[]) {
+		size = _size;
+		nodes.reserve(2*size-1);
 		nodes.push_back(Node());
-		build(&nodes.back(),1,max_range,v);
+		build(&nodes.back(),1,size,v);
 	}
 	void build(Node* cur, int nl, int nr, int v[]) {
 		if(nl == nr) {
@@ -43,7 +43,7 @@ struct Seg {
 		cur->data = min(cur->lchild->data,cur->rchild->data);
 	}
 	void update(int pos, int val) {
-		upd(&nodes[0],1,max_range,pos,val);
+		upd(&nodes[0],1,size,pos,val);
 	}
 	int qry(Node* cur, int nl, int nr, int ql, int qr) {
 		if(nr < ql || qr < nl) {
@@ -56,6 +56,6 @@ struct Seg {
 		return min(qry(cur->lchild,nl,mid,ql,qr), qry(cur->rchild,mid+1,nr,ql,qr));
 	}
 	int query(int l, int r) {
-		return qry(&nodes[0], 1, max_range, l, r);
+		return qry(&nodes[0], 1, size, l, r);
 	}
 };

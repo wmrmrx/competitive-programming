@@ -36,6 +36,9 @@ Mostly used for comparisons in geometry (Convex hull)
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/dijkstra.cpp}
 \subsection{RMQ}
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/rmq.cpp}
+\subsection{LCA}
+\textbf{Depends on RMQ (min)}
+\inputminted[obeytabs=true,tabsize=4]{cpp}{code/lca.cpp}
 \subsection{Sieve}
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/sieve.cpp}
 \subsection{Fast Exponentiation}
@@ -45,8 +48,10 @@ Mostly used for comparisons in geometry (Convex hull)
 \subsection{Segment Tree} 
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/seg.cpp}
 \subsection{Persistent Segment Tree} 
-Update at point and query of interval after update t
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/persistentseg.cpp}
 \subsection{Segment Tree with Lazy Propagation} 
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/lazyseg.cpp}
+\subsection{Heavy Light Decomposition} 
+\textbf{Only call init after adding all $N-1$ edges. Depends on LCA.}
+\inputminted[obeytabs=true,tabsize=4]{cpp}{code/hlp.cpp}
 \end{document}

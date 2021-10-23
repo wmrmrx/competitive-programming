@@ -7,12 +7,12 @@ struct PersistentSeg {
 			data = 0;
 		}
 	};
-	int max_range;
+	int size;
 	vector<Node*> root;
-	PersistentSeg(int _max_range, int v[]) {
-		max_range = _max_range;
+	PersistentSeg(int _size, int v[]) {
+		size = _size;
 		root.push_back(new Node);	
-		build(root[0],1,max_range,v);
+		build(root[0],1,size,v);
 	}
 	void build(Node* cur, int nl, int nr, int v[]) {
 		if(nl == nr) {
@@ -46,7 +46,7 @@ struct PersistentSeg {
 	void update(int pos, int val) {
 		Node* prev = root.back();	
 		root.push_back(new Node);
-		upd(root.back(),prev,1,max_range,pos,val);
+		upd(root.back(),prev,1,size,pos,val);
 	}
 	int qry(Node* cur, int nl, int nr, int ql, int qr) {
 		if(nr < ql || qr < nl) {
@@ -59,6 +59,6 @@ struct PersistentSeg {
 		return qry(cur->lchild,nl,mid,ql,qr) + qry(cur->rchild,mid+1,nr,ql,qr);
 	}
 	int query(int l, int r, int time) {
-		return qry(root[time],1,max_range,l,r);
+		return qry(root[time],1,size,l,r);
 	}
-};
+}
