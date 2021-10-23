@@ -11,7 +11,8 @@ template <typename SEG> struct HLP {
 	};
 	int n, root;
 	LCA* lca;
-	vector<SEG> all_segs; vector<Edge> all_edges;
+	vector<SEG> all_segs; 
+	vector<Edge> all_edges;
 	vector<vector<Edge*>> edges;
 	vector<Edge*> parent_edge;
 	vector<vector<int>> g;
@@ -19,7 +20,8 @@ template <typename SEG> struct HLP {
 	HLP<SEG>(int _n, int _root) {
 		n = _n;
 		root = _root;
-		all_segs.reserve(n-1); all_edges.reserve(n);
+		all_segs.reserve(n-1); 
+		all_edges.reserve(n);
 		all_edges.push_back(Edge(0));
 		edges = vector<vector<Edge*>>(n+1);
 		parent_edge = vector<Edge*>(n+1);
@@ -34,6 +36,9 @@ template <typename SEG> struct HLP {
 		edges[s].push_back(&all_edges.back());
 		g[t].push_back(s);
 		edges[t].push_back(&all_edges.back());
+		if(all_edges.size() == n) {
+			init();
+		}
 	}
 	void pre_calc(int v) {
 		sub[v] = 1;
@@ -48,11 +53,10 @@ template <typename SEG> struct HLP {
 		}
 	}
 	void calc_hlp(int v, int path_root, vector<int>& path) {
-		if(g[v].size() == 1) {
+		if(g[v].size() == 1 && v != root) {
 			all_segs.push_back(SEG(path.size(),path.data()));
 			int cur = v;
-			for(int d=path.size();d>0;d--) {
-				all_seg.back()[d-1] = cur;
+			for(int d=path.size()-1;d>0;d--) {
 				Edge *e = parent_edge[cur];
 				e->seg = &all_segs.back();
 				e->seg_root = path_root;
@@ -89,11 +93,33 @@ template <typename SEG> struct HLP {
 		}
 	}
 	void init() {
-		lca = new LCA(n,root,g);
+		parent_edge[root] = &all_edges[0];
+		lca = new LCA(n,root,g.data());
 		pre_calc(root);
-		calc_hlp(root,root,vector<int>(1));
+		vector<int> path(1);
+		calc_hlp(root,root,path);
+	}
+	int jump(int from, int to) {
+		int ans = INF;
+		while(prof[from] > prof[to]) {
+			Edge *fe = parent_edge[from], *te = parent_edge[to];
+			if(fe->seg == te->seg) {
+				int diff = prof[from] - prof[to] - 1;
+				ans = min(ans, fe->seg->query(fe->seg_pos-diff, fe->seg_pos));
+				from = to;
+			} else {
+				ans = min(ans, fe->seg->query(1,fe->seg_pos));
+				from = fe->seg_root;
+			}
+		}
+		return ans;
 	}
 	int query(int a, int b) {
+		if(a == b) {
+			return INF;
+		}
 		int c = lca->query(a,b);
+		return min(jump(a,c),jump(b,c));
 	}
 };
+

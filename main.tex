@@ -14,8 +14,7 @@
 
 \maketitle
 
-\textbf{IMPORTANT: 1-INDEXED DATA STRUCTURES, MUST SWAP MIN FOR MAX,
-CHANGE INF IF NECESSARY (DEFAULT $2^{30}$), DEFINE INT LONG LONG IF NECESSARY}
+\textbf{IMPORTANT: 1-INDEXED DATA STRUCTURES, MUST SWAP MIN FOR MAX AND INF FOR -INF, DEFINE INT LONG LONG IF NECESSARY}
 
 \tableofcontents
 \newpage
@@ -52,6 +51,6 @@ Mostly used for comparisons in geometry (Convex hull)
 \subsection{Segment Tree with Lazy Propagation} 
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/lazyseg.cpp}
 \subsection{Heavy Light Decomposition} 
-\textbf{Only call init after adding all $N-1$ edges. Depends on LCA.}
+\textbf{Only call init after adding all $N-1$ edges. Depends on LCA. all\_edges is 1-indexed}
 \inputminted[obeytabs=true,tabsize=4]{cpp}{code/hlp.cpp}
 \end{document}
