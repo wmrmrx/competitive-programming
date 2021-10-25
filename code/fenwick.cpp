@@ -7,8 +7,8 @@ struct Fenwick {
 	}
 	Fenwick(int _size, int v[]) {
 		size = _size;
-		bit = vector<int>(n+1);
-		for(int i=1;i<=sz;i++) {
+		bit = vector<int>(size+1);
+		for(int i=1;i<=size;i++) {
 			update(i,v[i]);
 		}
 	}
