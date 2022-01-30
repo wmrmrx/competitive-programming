@@ -28,7 +28,7 @@ struct PersistentSeg {
 	}
 	void upd(Node* cur, Node* prev, int nl, int nr, int pos, int val) {
 		if(nl == nr) {
-			cur->data = val;
+			cur->data = prev->data + val;
 			return;
 		}
 		int mid = (nl+nr)/2;
