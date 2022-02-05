@@ -55,15 +55,15 @@ struct Dinic {
 		}
 		return 0;
 	}
-	void reset() {
-		for(int i=0;i<edges.size();i++) {
-			if(i&1) {
-				e[i].flow = e[i].cap;
-			} else {
-				e[i].flow = 0;
-			}
-		}
-	}
+	//void reset() {
+	//	for(int i=0;i<e.size();i++) {
+	//		if(i&1) {
+	//			e[i].flow = e[i].cap;
+	//		} else {
+	//			e[i].flow = 0;
+	//		}
+	//	}
+	//}
 	int max_flow(int source, int sink) {
 		int total_flow = 0;
 		vector<int> start(n+1);
@@ -73,7 +73,7 @@ struct Dinic {
 				total_flow += pushed;
 			}
 		}
-		reset();
+		//reset();
 		return total_flow;
 	}
 };
