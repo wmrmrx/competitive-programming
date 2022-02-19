@@ -8,12 +8,6 @@ template <typename T> struct Matrix {
 		col = _col;
 		m.assign(lin,vector<T>(col));
 	}
-	Matrix(vector<vector<T>> _m, int _lin, int _col) {
-		assert(_lin > 0 && _col > 0);
-		lin = _lin;
-		col = _col;
-		m = _m;
-	}
 	Matrix operator*(Matrix& B) {
 		assert(col == B.lin);
 		size_t ret_lin = lin, ret_col = B.col;
