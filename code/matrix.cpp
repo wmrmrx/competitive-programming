@@ -1,3 +1,4 @@
+// ZERO INDEXED
 template <typename T> struct Matrix {
 	size_t lin, col;
 	vector<vector<T>> m;
