@@ -41,6 +41,21 @@ template <typename T> struct Matrix {
 		col = ret.col;
 		m = ret.m;
 	}
+	void exp(int num) {
+		assert(num > 0);
+		if(num <= 1) {
+			return;
+		}
+		Matrix copy = *this;
+		copy.exp(num/2);
+		copy *= copy;
+		if(num&1) {
+			*this *= copy;
+		} else {
+			*this = copy;
+		}
+
+	}
 	//Matrix operator__OPERATOR__(const Matrix& B) {
 	//	assert(lin == B.lin && col == B.col);
 	//	Matrix ret(lin, col);
@@ -76,4 +91,3 @@ template <typename T> struct Matrix {
 		}
 	}
 };
-
