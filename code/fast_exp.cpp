@@ -1,11 +1,10 @@
 int fast_exp(int num, int exponent, int mod) {
-	if(exponent == 0) {
-		return 1;
+	int ret = 1;
+	while(exponent) {
+		if(exponent&1) {
+			ret = (ret*num)%mod;
+		}
+		exponent >>= 1;
+		num = (num*num)%mod;
 	}
-	int half = fast_exp(num,exponent/2,mod);
-	half = (half*half)%mod;
-	if(exponent%2) {
-		half = (half*num)%mod;
-	}
-	return half;
 }

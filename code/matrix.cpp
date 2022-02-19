@@ -41,20 +41,22 @@ template <typename T> struct Matrix {
 		col = ret.col;
 		m = ret.m;
 	}
-	void exp(int num) {
-		assert(num > 0);
-		if(num <= 1) {
-			return;
-		}
+	Matrix exp(int num) {
+		assert(lin == col);
+		size_t N = lin;
+		Matrix I(N,N);
 		Matrix copy = *this;
-		copy.exp(num/2);
-		copy *= copy;
-		if(num&1) {
-			*this *= copy;
-		} else {
-			*this = copy;
+		for(size_t i=0;i<N;i++) {
+			I.m[i][i] = 1;
 		}
-
+		while(num) {
+			if(num&1) {
+				I *= copy;
+			}
+			num >>= 1;
+			copy *= copy;
+		}
+		return I;
 	}
 	//Matrix operator__OPERATOR__(const Matrix& B) {
 	//	assert(lin == B.lin && col == B.col);
