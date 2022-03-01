@@ -1,29 +1,29 @@
-// ONE INDEXED
-template <typename T> struct RMQ {
+template <typename T, bool MaxQuery = false> struct RMQ {
 	vector<vector<T>> dp;
+	inline T min_or_max(const T a, const T b) {
+		return MaxQuery ? max(a,b) : min(a,b);
+	}
 	RMQ<T>(size_t size, const T v[]) {
 		size_t log = 63-__builtin_clzll(size);
-		dp.assign(size, vector<T>(log+1));
-		for(size_t i=1;i<=size;i++) {
-			dp[i][0] = v[i];
+		dp.assign(log+1, vector<T>(size));
+		for(size_t i=0;i<size;i++) {
+			dp[0][i] = v[i];
 		}
 		for(size_t l=1;l<=log;l++) {
-			for(size_t i=1;i<=n;i++) {
+			for(size_t i=0;i<size;i++) {
 				size_t other = min(i+(1<<(l-1)), size);
-				if(other > n) {
-					other = n;
-				}
-				dp[i][l] = min(dp[i][l-1],dp[other][l-1]);
+				dp[l][i] = min_or_max(dp[l-1][i],dp[l-1][other]);
 			}
 		}
 	}
 	T query(size_t a, size_t b) {
 		assert(a <= b);
+		assert(b < dp[0].size());
 		if(a == b) {
-			return dp[a][0];
+			return dp[0][a];
 		}
 		size_t diff = b-a;
 		size_t pot = 63-__builtin_clzll(diff);
-		return min( dp[a][pot] , dp[b-(1<<pot)+1][pot] );
+		return min_or_max(dp[pot][a], dp[pot][b-(1<<pot)+1]);
 	}
 };

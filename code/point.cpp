@@ -4,10 +4,10 @@ struct Point {
 		x = _x;
 		y = _y;
 	}
-	int dot(Point &other) {
+	int dot(Point &other) const {
 		return x*other.x + y*other.y;
 	}
-	int cross(Point& other) {
+	int cross(Point& other) const {
 		return x*other.y - y*other.x;
 	}
 	Point operator+(Point& other) const {
