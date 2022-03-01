@@ -1,13 +1,10 @@
 struct Point {
-	int x,y;
-	Point(int _x, int _y) {
-		x = _x;
-		y = _y;
-	}
-	int dot(Point &other) const {
+	int64_t x,y;
+	Point(int64_t x, int64_t y) x(x), y(y) { }
+	int64_t dot(Point &other) const {
 		return x*other.x + y*other.y;
 	}
-	int cross(Point& other) const {
+	int64_t cross(Point& other) const {
 		return x*other.y - y*other.x;
 	}
 	Point operator+(Point& other) const {
