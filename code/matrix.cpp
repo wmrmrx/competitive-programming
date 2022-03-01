@@ -1,11 +1,8 @@
 // ZERO INDEXED
 template <typename T> struct Matrix {
-	size_t lin, col;
+	const size_t lin, col;
 	vector<vector<T>> m;
-	Matrix(int _lin, int _col) {
-		assert(_lin > 0 && _col > 0);
-		lin = _lin;
-		col = _col;
+	Matrix(size_t lin, size_t col): lin(lin), col(col) {
 		m.assign(lin,vector<T>(col));
 	}
 	Matrix operator*(Matrix& B) {
@@ -36,7 +33,7 @@ template <typename T> struct Matrix {
 		col = ret.col;
 		m = ret.m;
 	}
-	Matrix exp(int num) {
+	Matrix exp(uint32_t num) {
 		assert(lin == col);
 		size_t N = lin;
 		Matrix I(N,N);
