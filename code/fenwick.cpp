@@ -1,9 +1,8 @@
 template <typename T, bool OneIndexed = true> struct Fenwick {
 	const size_t size;
-	T* bit;
-	Fenwick(size_t size): size(size), bit(new T[size]-1) {}
-	~Fenwick() {
-		delete [] (bit+1);
+	vector<T> bit;
+	Fenwick(size_t size): size(size) {
+		bit.assign(size+1, 0);
 	}
 	void update(size_t id, const T val) {
 		if(!OneIndexed) {
@@ -26,4 +25,3 @@ template <typename T, bool OneIndexed = true> struct Fenwick {
 		return sum;
 	}
 };
-
