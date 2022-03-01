@@ -5,7 +5,7 @@ template <typename T> struct Matrix {
 	Matrix(size_t lin, size_t col): lin(lin), col(col) {
 		m.assign(lin,vector<T>(col));
 	}
-	Matrix operator*(Matrix& B) {
+	Matrix operator*(Matrix& B) const {
 		assert(col == B.lin);
 		size_t ret_lin = lin, ret_col = B.col;
 		Matrix ret(ret_lin, ret_col);
@@ -33,7 +33,7 @@ template <typename T> struct Matrix {
 		col = ret.col;
 		m = ret.m;
 	}
-	Matrix exp(uint32_t num) {
+	Matrix exp(uint32_t num) const {
 		assert(lin == col);
 		size_t N = lin;
 		Matrix I(N,N);
