@@ -1,7 +1,7 @@
-vector<int> compress(vector<int> &arr) {
+template <typename Iterator> vector<int> compress(Iterator begin, Iterator end) {
 	set<int> comp_set;
-	for(int i: arr) {
-		comp_set.insert(i);
+	for(auto it = begin; it != end; it++) {
+		comp_set.insert(*it);
 	}
 	vector<int> ret(comp_set.size());
 	map<int,uint32_t> comp_mp;
@@ -11,8 +11,8 @@ vector<int> compress(vector<int> &arr) {
 		ret[cnt] = i;
 		cnt++;
 	}
-	for(int& x: arr) {
-		x = comp_mp[x];
+	for(auto it = begin; it != end; it++) {
+		*it = comp_mp[*it];
 	}
 	return ret;
 }
