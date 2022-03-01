@@ -1,14 +1,15 @@
+// ONE INDEXED
 template <typename T> struct RMQ {
 	vector<vector<T>> dp;
-	RMQ<T>(long long n, T v[]) {
-		long long log = 63-__builtin_clzll(n);
-		dp = vector<vector<T>>(n+1,vector<T>(log+1));
-		for(int i=1;i<=n;i++) {
+	RMQ<T>(size_t size, const T v[]) {
+		size_t log = 63-__builtin_clzll(size);
+		dp.assign(size, vector<T>(log+1));
+		for(size_t i=1;i<=size;i++) {
 			dp[i][0] = v[i];
 		}
-		for(int l=1;l<=log;l++) {
-			for(int i=1;i<=n;i++) {
-				int other = i + (1<<(l-1));
+		for(size_t l=1;l<=log;l++) {
+			for(size_t i=1;i<=n;i++) {
+				size_t other = min(i+(1<<(l-1)), size);
 				if(other > n) {
 					other = n;
 				}
@@ -16,12 +17,13 @@ template <typename T> struct RMQ {
 			}
 		}
 	}
-	T query(long long a, long long b) {
+	T query(size_t a, size_t b) {
+		assert(a <= b);
 		if(a == b) {
 			return dp[a][0];
 		}
-		long long diff = b-a;
-		int pot = 63-__builtin_clzll(diff);
+		size_t diff = b-a;
+		size_t pot = 63-__builtin_clzll(diff);
 		return min( dp[a][pot] , dp[b-(1<<pot)+1][pot] );
 	}
 };
