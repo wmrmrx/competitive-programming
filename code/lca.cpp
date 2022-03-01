@@ -1,10 +1,10 @@
 struct LCA {
-	RMQ<pair<int,int>> *rmq;
-	vector<int> time;
-	void DFS(int v, int parent, int prof[], vector<pair<int,int>>& euler_tour, vector<int> g[]) {
+	unique_ptr<RMQ<pair<uint32_t,size_t>>> rmq;
+	vector<size_t> time;
+	template <typename T> void DFS(size_t v, size_t parent, uint32_t prof[], vector<pair<uint32_t, size_t>>& euler_tour, const vector<T> g[]) {
 		time[v] = euler_tour.size();
 		euler_tour.push_back({prof[v],v});
-		for(auto prox: g[v]) {
+		for(size_t prox: g[v]) {
 			if(prox == parent) {
 				continue;
 			}
@@ -13,14 +13,15 @@ struct LCA {
 			euler_tour.push_back({prof[v],v});
 		}
 	}
-	LCA(int n, int root, vector<int> g[]) {
-		vector<pair<int,int>> euler_tour(1);
-		vector<int> prof(n+1);
-		time = vector<int>(n+1);
-		DFS(root,0,prof.data(),euler_tour,g);
-		rmq = new RMQ< pair<int,int> >(2*n-1, euler_tour.data());
+	template <typename T> LCA(size_t size, size_t root, const vector<T> g[]) {
+		vector<pair<uint32_t, size_t>> euler_tour;
+		euler_tour.reserve(2*size-1);
+		vector<uint32_t> prof(size);
+		time.assign(size, 0);
+		DFS(root,root,prof.data(),euler_tour,g);
+		rmq.reset(new RMQ<pair<uint32_t, size_t>>(2*size-1, euler_tour.data()));
 	}
-	int query(int a, int b) {
+	size_t query(size_t a, size_t b) {
 		if(time[a] > time[b]) {
 			swap(a,b);
 		}
