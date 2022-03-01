@@ -1,28 +1,27 @@
 struct Fraction {
-	int num;
-	int den;
-	Fraction(int _num, int _den) {
-		num = _num;
-		den = _den;
-		assert(den != 0);
+	int64_t num, den;
+	Fraction(int64_t _num, int64_t _den) {
+		assert(_den != 0);
 		if(den < 0) {
-			num = -num;
-			den = -den;
+			num = -_num;
+			den = -_den;
+		} else {
+			num = _num;
+			den = _den;
 		}
 	}
 	bool operator==(Fraction& other) const {
-		return (num*other.den == other.num*den);
+		int64_t l = num*other.den;
+		int64_t r = other.num*den;
+		// __int128_t l = (__int128_t) num*other.den;
+		// __int128_t r = (__int128_t) other.num*den;
+		return l == r;
 	}
-	bool operator<(Fraction& other) const {
-		return num*other.den < other.num*den;
-	}
-	bool operator<=(Fraction& other) const {
-		return num*other.den <= other.num*den;
-	}
-	bool operator>(Fraction& other) const {
-		return num*other.den > other.num*den;
-	}
-	bool operator>=(Fraction& other) const {
-		return num*other.den >= other.num*den;
+	bool operator<(const Fraction& other) const {
+		int64_t l = num*other.den;
+		int64_t r = other.num*den;
+		// __int128_t l = (__int128_t) num*other.den;
+		// __int128_t r = (__int128_t) other.num*den;
+		return l < r;
 	}
 };
