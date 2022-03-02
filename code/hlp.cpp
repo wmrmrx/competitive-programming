@@ -125,4 +125,3 @@ template <typename SEG> struct HLP {
 		return query_jump(s,ancestor) + query_jump(t, ancestor);
 	}
 };
-
