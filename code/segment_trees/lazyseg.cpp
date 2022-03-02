@@ -3,7 +3,7 @@ struct LazySeg {
 		size_t lchild, rchild;
 		int64_t pool;
 		int64_t data;
-		Node(): lchild(0), rchild(0), pool(0), data(0) { }
+		Node(): lchild(0), rchild(0), pool(0), data(0) {}
 	};
 	const size_t size;
 	vector<Node> nodes;
