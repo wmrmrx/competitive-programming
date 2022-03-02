@@ -1,61 +1,50 @@
 struct Seg {
-	struct Node {
-		Node *lchild, *rchild;
-		int data;
-		Node() {
-			lchild = rchild = NULL;
-			data = INF;
-		}
-	};
-	int size;
-	vector<Node> nodes;
-	Seg(int _size, int v[]) {
-		size = _size;
-		nodes.reserve(2*size-1);
-		nodes.push_back(Node());
-		build(&nodes.back(),1,size,v);
+	const size_t size;
+	const int64_t INF = 1ULL<<63;
+	vector<int64_t> seg;
+	template <typename T> Seg(size_t size, const T v[]): size(size) {
+		seg.assign(4*size, INF);
+		build(1,0,size-1,v);
 	}
-	void build(Node* cur, int nl, int nr, int v[]) {
-		if(nl == nr) {
-			cur->data = v[nl];
+	template <typename T> void build(size_t cur, size_t cl, size_t cr, const T v[]) {
+		if(cl == cr) {
+			seg[cur] = v[cl];
+			MAX = max(cur, MAX);
 			return;
 		}
-		int mid = (nl+nr)/2;
-		nodes.push_back(Node());
-		cur->lchild = &nodes.back();
-		build(cur->lchild,nl,mid,v);
-		nodes.push_back(Node());
-		cur->rchild = &nodes.back();
-		build(cur->rchild,mid+1,nr,v);
-		cur->data = min(cur->lchild->data,cur->rchild->data);
+		size_t mid = (cl+cr)/2;
+		size_t p1 = 2*cur, p2 = p1+1;
+		build(p1, cl, mid, v);
+		build(p2, mid+1, cr, v);
 	}
-	void upd(Node* cur, int nl, int nr, int pos, int val) {
-		if(nl == nr) {
-			cur->data = val;
-			return;
-		}
-		int mid = (nl+nr)/2;
-		if(pos <= mid) {
-			upd(cur->lchild,nl,mid,pos,val);
-		} else {
-			upd(cur->rchild,mid+1,nr,pos,val);
-		}
-		cur->data = min(cur->lchild->data,cur->rchild->data);
-	}
-	void update(int pos, int val) {
-		upd(&nodes[0],1,size,pos,val);
-	}
-	int qry(Node* cur, int nl, int nr, int ql, int qr) {
-		if(nr < ql || qr < nl) {
+	int64_t query(size_t l, size_t r, size_t cur, size_t cl, size_t cr) {
+		if(r < cl || cr < l) {
 			return INF;
 		}
-		if(ql <= nl && nr <= qr) {
-			return cur->data;
+		if(cl <= l && r <= cr) {
+			return seg[cur];
 		}
-		int mid = (nl+nr)/2;
-		return min(qry(cur->lchild,nl,mid,ql,qr), qry(cur->rchild,mid+1,nr,ql,qr));
+		size_t mid = (cl+cr)/2;
+		size_t p1 = 2*cur, p2 = p1+1;
+		return min(query(l,r,p1,cl,mid), query(l,r,p2,mid+1,cr));
 	}
-	int query(int l, int r) {
-		return qry(&nodes[0], 1, size, l, r);
+	void update(size_t pos, int64_t val, size_t cur, size_t cl, size_t cr) {
+		if(pos < cl || cr < pos) {
+			return;
+		}
+		if(cl == cr) {
+			seg[pos] = val;
+			return;
+		}
+		size_t mid = (cl+cr)/2;
+		size_t p1 = 2*cur, p2 = p1+1;
+		update(pos, val, p1, cl, mid);
+		update(pos, val, p2, mid+1, cr);
+	}
+	int64_t query(size_t l, size_t r) {
+		return query(l,r,1,0,size-1);
+	}
+	void update(size_t pos, int64_t val) {
+		update(pos,val,1,0,size-1);
 	}
 };
