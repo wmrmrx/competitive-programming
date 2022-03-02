@@ -1,77 +1,83 @@
 struct LazySeg {
 	struct Node {
-		Node *lchild, *rchild;
-		int data;
-		int pooled_data;
-		Node() {
-			lchild = rchild = NULL;
-			data = 0;
-			pooled_data = 0;
-		}
+		size_t lchild, rchild;
+		int64_t pool;
+		int64_t data;
+		Node(): lchild(0), rchild(0), pool(0), data(0) { }
 	};
-	int size;
+	const size_t size;
 	vector<Node> nodes;
-	LazySeg(int _size, int v[]) {
-		size = _size;
-		nodes.reserve(2*size-1);
+	size_t new_node() {
 		nodes.push_back(Node());
-		build(&nodes[0],1,size,v);
+		return nodes.size()-1;
 	}
-	void build(Node* cur, int nl, int nr, int v[]) {
-		if(nl == nr) {
-			cur->data = v[nl];
-			return;
-		}
-		int mid = (nl+nr)/2;
-		nodes.push_back(Node());
-		cur->lchild = &nodes.back();
-		nodes.push_back(Node());
-		cur->rchild = &nodes.back();
-		build(cur->lchild,nl,mid,v); 
-		build(cur->rchild,mid+1,nr,v);
-		cur->data = cur->lchild->data + cur->rchild->data;
-	}
-	void refresh(Node* cur, int nl, int nr) {
-		if(cur->pooled_data != 0) {
-			cur->data += cur->pooled_data * (nr - nl + 1);
-			if(nl != nr) {
-				cur->lchild->pooled_data += cur->pooled_data;
-				cur->rchild->pooled_data += cur->pooled_data;
+	void refresh(Node& cur, size_t cl, size_t cr) {
+		if(cur.pool) {
+			cur.data += cur.pool*((int64_t)cr-cl+1);
+			if(cl < cr) {
+				Node& p1 = nodes[cur.lchild];
+				Node& p2 = nodes[cur.rchild];
+				p1.pool += cur.pool;
+				p2.pool += cur.pool;
 			}
-			cur->pooled_data = 0;
+			cur.pool = 0;
 		}
 	}
-	void upd(Node* cur, int nl, int nr, int ql, int qr, int val) {
-		refresh(cur,nl,nr);
-		if(nr < ql || qr < nl) {
+	template <typename T> LazySeg(size_t size, const T v[]): size(size) {
+		nodes.reserve(2*size-1);
+		new_node();
+		build(nodes[0],0,size-1,v);
+	}
+	template <typename T> void build(Node& cur, size_t cl, size_t cr, const T v[]) {
+		if(cl == cr) {
+			cur.data = v[cl];
 			return;
 		}
-		if(ql <= nl && nr <= qr) {
-			cur->pooled_data += val;
-			return;
-		}
-		int mid = (nl+nr)/2;
-		upd(cur->lchild, nl, mid, ql, qr, val);
-		upd(cur->rchild, mid+1, nr, ql, qr, val);
-		refresh(cur->lchild,nl,mid); 
-		refresh(cur->rchild,mid+1,nr);
-		cur->data = cur->lchild->data + cur->rchild->data;
+		size_t mid = (cl+cr)/2;
+		cur.lchild = new_node();
+		Node& p1 = nodes[cur.lchild];
+		cur.rchild = new_node();
+		Node& p2 = nodes[cur.rchild];
+		build(p1, cl, mid, v);
+		build(p2, mid+1, cr, v);
+		cur.data = p1.data + p2.data;
 	}
-	void update(int l, int r, int val) {
-		upd(&nodes[0],1,size,l,r,val);
-	}
-	int qry(Node* cur, int nl, int nr, int ql, int qr) {
-		refresh(cur,nl,nr);
-		if(nr < ql || qr < nl) {
+	int64_t query(size_t l, size_t r, Node& cur, size_t cl, size_t cr) {
+		refresh(cur, cl, cr);
+		if(r < cl || cr < l) {
 			return 0;
 		}
-		if(ql <= nl && nr <= qr) {
-			return cur->data;
+		if(l <= cl && cr <= r) {
+			return cur.data;
 		}
-		int mid = (nl+nr)/2;
-		return qry(cur->lchild,nl,mid,ql,qr) + qry(cur->rchild,mid+1,nr,ql,qr);
+		size_t mid = (cl+cr)/2;
+		Node& p1 = nodes[cur.lchild];
+		Node& p2 = nodes[cur.rchild];
+		return query(l,r,p1,cl,mid) + query(l,r,p2,mid+1,cr);
 	}
-	int query(int l, int r) {
-		return qry(&nodes[0],1,size,l,r);
+	void update(size_t l, size_t r, int64_t val, Node& cur, size_t cl, size_t cr) {
+		refresh(cur, cl, cr);
+		if(r < cl || cr < l) {
+			return;
+		}
+		if(l <= cl && cr <= r) {
+			cur.pool += val;
+			refresh(cur, cl, cr);
+			return;
+		}
+		size_t mid = (cl+cr)/2;
+		Node& p1 = nodes[cur.lchild];
+		Node& p2 = nodes[cur.rchild];
+		update(l, r, val, p1, cl, mid);
+		update(l, r, val, p2, mid+1, cr);
+		cur.data = p1.data + p2.data;
+	}
+	int64_t query(size_t l, size_t r) {
+		Node& cur = nodes[0];
+		return query(l,r,cur,0,size-1);
+	}
+	void update(size_t l, size_t r, int64_t val) {
+		Node& cur = nodes[0];
+		update(l,r,val,cur,0,size-1);
 	}
 };

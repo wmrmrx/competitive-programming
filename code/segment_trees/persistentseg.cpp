@@ -1,64 +1,79 @@
 struct PersistentSeg {
 	struct Node {
-		Node *lchild, *rchild;
-		int data;
-		Node() {
-			lchild = rchild = NULL;
-			data = 0;
-		}
+		size_t lchild, rchild;
+		int64_t data;
+		Node(): lchild(0), rchild(0), data(0) { }
 	};
-	int size;
-	vector<Node*> root;
-	PersistentSeg(int _size, int v[]) {
-		size = _size;
-		root.push_back(new Node);	
-		build(root[0],1,size,v);
+	const size_t size;
+	vector<Node> nodes;
+	vector<size_t> roots;
+	size_t new_node() {
+		nodes.push_back(Node());
+		return nodes.size()-1;
 	}
-	void build(Node* cur, int nl, int nr, int v[]) {
-		if(nl == nr) {
-			cur->data = v[nl];
+	template <typename T> PersistentSeg(size_t size, const T v[]): size(size) {
+		nodes.reserve(size*(1<<20));
+		roots.push_back(new_node());
+		build(nodes[0],0,size-1,v);
+	}
+	template <typename T> void build(Node& cur, size_t cl, size_t cr, const T v[]) {
+		if(cl == cr) {
+			cur.data = v[cl];
 			return;
 		}
-		int mid = (nl+nr)/2;
-		cur->lchild = new Node;
-		cur->rchild = new Node;
-		build(cur->lchild,nl,mid,v); 
-		build(cur->rchild,mid+1,nr,v);
-		cur->data = cur->lchild->data + cur->rchild->data;
+		size_t mid = (cl+cr)/2;
+		cur.lchild = new_node();
+		Node& p1 = nodes[cur.lchild];
+		cur.rchild = new_node();
+		Node& p2 = nodes[cur.rchild];
+		build(p1, cl, mid, v);
+		build(p2, mid+1, cr, v);
+		cur.data = p1.data + p2.data;
 	}
-	void upd(Node* cur, Node* prev, int nl, int nr, int pos, int val) {
-		if(nl == nr) {
-			cur->data = prev->data + val;
-			return;
-		}
-		int mid = (nl+nr)/2;
-		if(pos <= mid) {
-			cur->lchild = new Node;
-			cur->rchild = prev->rchild;
-			upd(cur->lchild,prev->lchild,nl,mid,pos,val);
-		} else {
-			cur->rchild = new Node;
-			cur->lchild = prev->lchild;
-			upd(cur->rchild,prev->rchild,mid+1,nr,pos,val);
-		}
-		cur->data = cur->lchild->data + cur->rchild->data;
-	}
-	void update(int pos, int val) {
-		Node* prev = root.back();	
-		root.push_back(new Node);
-		upd(root.back(),prev,1,size,pos,val);
-	}
-	int qry(Node* cur, int nl, int nr, int ql, int qr) {
-		if(nr < ql || qr < nl) {
+	int64_t query(size_t l, size_t r, Node& cur, size_t cl, size_t cr) {
+		if(r < cl || cr < l) {
 			return 0;
 		}
-		if(ql <= nl && nr <= qr) {
-			return cur->data;
+		if(l <= cl && cr <= r) {
+			return cur.data;
 		}
-		int mid = (nl+nr)/2;
-		return qry(cur->lchild,nl,mid,ql,qr) + qry(cur->rchild,mid+1,nr,ql,qr);
+		size_t mid = (cl+cr)/2;
+		Node& p1 = nodes[cur.lchild];
+		Node& p2 = nodes[cur.rchild];
+		return query(l,r,p1,cl,mid) + query(l,r,p2,mid+1,cr);
 	}
-	int query(int l, int r, int time) {
-		return qry(root[time],1,size,l,r);
+	void update(size_t pos, int64_t val, Node& cur, Node& prev, size_t cl, size_t cr) {
+		if(pos < cl || cr < pos) {
+			return;
+		}
+		if(cl == cr) {
+			cur.data = prev.data + val;
+			return;
+		}
+		size_t mid = (cl+cr)/2;
+		if(pos <= mid) {
+			cur.lchild = new_node();
+			cur.rchild = prev.rchild;
+		} else {
+			cur.lchild = prev.lchild;
+			cur.rchild = new_node();
+		}
+		Node& p1 = nodes[cur.lchild];
+		Node& prev1 = nodes[prev.lchild];
+		Node& p2 = nodes[cur.rchild];
+		Node& prev2 = nodes[prev.rchild];
+		update(pos, val, p1, prev1, cl, mid);
+		update(pos, val, p2, prev2, mid+1, cr);
+		cur.data = p1.data + p2.data;
 	}
-}
+	int64_t query(size_t l, size_t r, size_t time) {
+		Node& cur = nodes[roots[time]];
+		return query(l,r,cur,0,size-1);
+	}
+	void update(size_t pos, int64_t val) {
+		Node& prev = nodes[roots.back()];
+		roots.push_back(new_node());
+		Node& cur = nodes[roots.back()];
+		update(pos,val,cur,prev,0,size-1);
+	}
+};

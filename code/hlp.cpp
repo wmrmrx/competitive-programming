@@ -122,4 +122,3 @@ template <typename SEG> struct HLP {
 		return min(jump(a,c),jump(b,c));
 	}
 };
-
