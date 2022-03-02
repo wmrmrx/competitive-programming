@@ -1,10 +1,10 @@
-template <typename T, bool OneIndexed = true> struct Fenwick {
+template <bool OneIndexed = true> struct Fenwick {
 	const size_t size;
-	vector<T> bit;
+	vector<int64_t> bit;
 	Fenwick(size_t size): size(size) {
 		bit.assign(size+1, 0);
 	}
-	void update(size_t id, const T val) {
+	void update(size_t id, const int64_t val) {
 		if(!OneIndexed) {
 			id += 1;
 		}

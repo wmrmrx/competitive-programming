@@ -17,7 +17,7 @@ struct LCA {
 		vector<pair<uint32_t, size_t>> euler_tour;
 		euler_tour.reserve(2*size-1);
 		vector<uint32_t> prof(size);
-		time.assign(size, 0);
+		time.assign(size, -1);
 		DFS(root,root,prof.data(),euler_tour,g);
 		rmq.reset(new RMQ<pair<uint32_t, size_t>>(2*size-1, euler_tour.data()));
 	}

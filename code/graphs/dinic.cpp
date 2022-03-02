@@ -9,7 +9,7 @@ struct Dinic {
 	vector<uint64_t> level;
 	Dinic(size_t size) {
 		g.assign(size, vector<size_t>());
-		level.assign(size, 0);
+		level.assign(size, -1);
 		e.reserve(size);
 	}
 	void add_edge(size_t s, size_t t, uint64_t capacity) {

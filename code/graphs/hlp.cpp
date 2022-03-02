@@ -1,119 +1,128 @@
 template <typename SEG> struct HLP {
 	struct Edge {
 		int64_t data;
-		size_t seg_handle, seg_pos, seg_root;
-		Edge(int64_t data): data(data), seg_handle(0), seg_pos(0), seg_root(0) {}
+		size_t seg_handle, seg_root;
+		Edge(int64_t data): data(data), seg_handle(-1), seg_root(-1) {}
 	};
-	int n, root;
-	LCA* lca;
-	vector<SEG> all_segs; 
-	vector<Edge> all_edges;
-	vector<vector<Edge*>> edges;
-	vector<Edge*> parent_edge;
-	vector<vector<int>> g;
-	vector<int> sub, parent, prof;
-	HLP<SEG>(int _n, int _root) {
-		n = _n;
-		root = _root;
-		all_segs.reserve(n-1); 
-		all_edges.reserve(n);
-		all_edges.push_back(Edge(0));
-		edges = vector<vector<Edge*>>(n+1);
-		parent_edge = vector<Edge*>(n+1);
-		g = vector<vector<int>>(n+1);
-		sub = vector<int>(n+1);
-		parent = vector<int>(n+1);
-		prof = vector<int>(n+1);
+	const size_t size, root;
+	vector<vector<size_t>> g;
+	vector<vector<size_t>> edge_id;
+	vector<SEG> segs;
+	vector<Edge> edges;
+	unique_ptr<LCA> lca;
+	vector<size_t> parent, parent_edge;
+	vector<uint32_t> sub, prof;
+	HLP(size_t size, size_t root): size(size), root(root) {
+		g.assign(size, vector<size_t>());
+		edge_id.assign(size, vector<size_t>());
+		segs.reserve(size-1);
+		edges.reserve(size-1);
+		parent.assign(size, -1);
+		parent_edge.assign(size, -1);
+		sub.assign(size, -1);
+		prof.assign(size, -1);
 	}
-	void add_edge(int s, int t, int data) {
-		all_edges.push_back(Edge(data));
-		g[s].push_back(t);
-		edges[s].push_back(&all_edges.back());
-		g[t].push_back(s);
-		edges[t].push_back(&all_edges.back());
-		if(all_edges.size() == n) {
-			init();
-		}
-	}
-	void pre_calc(int v) {
-		sub[v] = 1;
-		for(auto prox: g[v]) {
-			if(prox == parent[v]) {
-				continue;
+	void initialize() {
+		lca.reset(new LCA(size, root, g.data()));
+		auto predfs = [&](size_t cur, auto&& _predfs) -> void {
+			sub[cur] = 1;
+			for(size_t i=0;i<g[cur].size();i++) {
+				size_t prox = g[cur][i];
+				size_t edge = edge_id[cur][i];
+				if(parent[cur] == prox) {
+					continue;
+				}
+				prof[prox] = prof[cur] + 1;
+				parent[prox] = cur;
+				parent_edge[prox] = edge;
+				_predfs(prox, _predfs);
+				sub[cur] += sub[prox];
 			}
-			parent[prox] = v;
-			prof[prox] = prof[v]+1;
-			pre_calc(prox);
-			sub[v] += sub[prox];
-		}
-	}
-	void calc_hlp(int v, int path_root, vector<int>& path) {
-		if(g[v].size() == 1 && v != root) {
-			all_segs.push_back(SEG(path.size(),path.data()));
-			int cur = v;
-			for(int d=path.size()-1;d>0;d--) {
-				Edge *e = parent_edge[cur];
-				e->seg = &all_segs.back();
-				e->seg_root = path_root;
-				e->seg_pos = d;
+		};
+		prof[root] = 0;
+		predfs(root, predfs);
+		auto update_edges = [&] (size_t cur, size_t path_root) {
+			size_t seg_handle = segs.size(),
+			       seg_root = path_root,
+			       seg_size = prof[cur] - prof[path_root];
+			vector<int64_t> v;
+			v.reserve(seg_size);
+			while(cur != path_root) {
+				Edge &e = edges[parent_edge[cur]];
+				v.push_back(e.data);
+				e.seg_handle = seg_handle;
+				e.seg_root = seg_root;
 				cur = parent[cur];
 			}
-			return;
-		}
-		int mx = 0, big_child = 0;
-		for(auto prox: g[v]) {
-			if(prox == parent[v]) {
-				continue;
+			reverse(v.begin(), v.end());
+			segs.push_back(SEG(seg_size, v.data()));
+
+		};
+		auto dsudfs = [&](size_t cur, size_t path_root, auto&& _dsudfs) -> void {
+			uint32_t max_sub = 0;
+			size_t big_child = -1;
+			if(cur != root) {
+				if(g[cur].size() == 1) {
+					update_edges(cur, path_root);
+					return;
+				}
+				for(size_t prox: g[cur]) {
+					if(parent[cur] == prox) {
+						continue;
+					}
+					if(sub[prox] > max_sub) {
+						big_child = prox;
+						max_sub = sub[prox];
+					}
+				}
 			}
-			if(sub[v] > mx) {
-				sub[v] = mx; 
-				big_child = prox;
+			for(size_t i=0;i<g[cur].size();i++) {
+				size_t prox = g[cur][i];
+				if(parent[cur] == prox) {
+					continue;
+				}
+				if(prox == big_child) {
+					_dsudfs(prox, path_root, _dsudfs);
+				} else {
+					_dsudfs(prox, cur, _dsudfs);
+				}
 			}
-		}
-		for(int i=0;i<g[v].size();i++) {
-			int prox = g[v][i];
-			if(prox == parent[v]) {
-				continue;
-			}
-			Edge *e = edges[v][i];
-			parent_edge[prox] = e;
-			if(prox == big_child) {
-				path.push_back(e->data);
-				calc_hlp(prox,path_root,path);
-			} else {
-				vector<int> new_path(1);
-				new_path.push_back(e->data);
-				calc_hlp(prox,v,new_path);
-			}
-		}
+		};
+		dsudfs(root, -1, dsudfs);
 	}
-	void init() {
-		parent_edge[root] = &all_edges[0];
-		lca = new LCA(n,root,g.data());
-		pre_calc(root);
-		vector<int> path(1);
-		calc_hlp(root,root,path);
+	// seg position of parent_edge[v]
+	size_t seg_pos(size_t v) {
+		return prof[v] - prof[edges[parent_edge[v]].seg_root] - 1;
 	}
-	int jump(int from, int to) {
-		int ans = INF;
-		while(prof[from] > prof[to]) {
-			Edge *fe = parent_edge[from], *te = parent_edge[to];
-			if(fe->seg == te->seg) {
-				int diff = prof[from] - prof[to] - 1;
-				ans = min(ans, fe->seg->query(fe->seg_pos-diff, fe->seg_pos));
-				from = to;
+	int64_t query_jump(size_t s, size_t t) {
+		int64_t ans = 0;
+		while(prof[s] > prof[t]) {
+			Edge& e = edges[parent_edge[s]];
+			SEG& seg = segs[e.seg_handle];
+			if(prof[e.seg_root] >= prof[t]) {
+				ans += seg.query(0, seg_pos(s));
+				s = e.seg_root;
 			} else {
-				ans = min(ans, fe->seg->query(1,fe->seg_pos));
-				from = fe->seg_root;
+				ans += seg.query(seg_pos(t)+1, seg_pos(s));
+				s = t;
 			}
 		}
 		return ans;
 	}
-	int query(int a, int b) {
-		if(a == b) {
-			return INF;
+	void add_edge(size_t s, size_t t, int64_t data) {
+		size_t id = edges.size();
+		edges.push_back(Edge(data));
+		g[s].push_back(t);
+		edge_id[s].push_back(id);
+		g[t].push_back(s);
+		edge_id[t].push_back(id);
+		if(edges.size() == size-1) {
+			initialize();
 		}
-		int c = lca->query(a,b);
-		return min(jump(a,c),jump(b,c));
+	}
+	int64_t query(size_t s, size_t t) {
+		size_t ancestor = lca->query(s, t);
+		return query_jump(s,ancestor) + query_jump(t, ancestor);
 	}
 };
+
