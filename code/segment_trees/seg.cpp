@@ -1,14 +1,18 @@
 struct Seg {
-	const size_t size;
 	const int64_t INF = 1ULL<<63;
-	vector<int64_t> seg;
+	struct Node {
+		int64_t data;
+		Node(): data(INF) { }
+	}
+	const size_t size;
+	vector<Node> seg;
 	template <typename T> Seg(size_t size, const T v[]): size(size) {
 		seg.assign(4*size, INF);
 		build(1,0,size-1,v);
 	}
 	template <typename T> void build(size_t cur, size_t cl, size_t cr, const T v[]) {
 		if(cl == cr) {
-			seg[cur] = v[cl];
+			seg[cur].data = v[cl];
 			MAX = max(cur, MAX);
 			return;
 		}
@@ -22,7 +26,7 @@ struct Seg {
 			return INF;
 		}
 		if(cl <= l && r <= cr) {
-			return seg[cur];
+			return seg[cur].data;
 		}
 		size_t mid = (cl+cr)/2;
 		size_t p1 = 2*cur, p2 = p1+1;
