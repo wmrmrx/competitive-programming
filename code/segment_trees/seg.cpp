@@ -41,24 +41,17 @@ struct Seg {
 		Node& p2 = nodes[cur.rchild];
 		return query(l,r,p1,cl,mid) + query(l,r,p2,mid+1,cr);
 	}
-	size_t lower_bound(size_t l, size_t r, int64_t val, Node& cur, size_t cl, size_t cr) {
-		if(l == r) {
-			return l;
+	size_t lower_bound(int64_t val, Node& cur, size_t cl, size_t cr) {
+		if(cl == cr) {
+			return cl;
 		}
 		size_t mid = (cl+cr)/2;
 		Node& p1 = nodes[cur.lchild];
 		Node& p2 = nodes[cur.rchild];
-		if(r <= mid) {
-			return lower_bound(l,r,val,p1,cl,mid);
-		}
-		if(l < mid) {
-			return lower_bound(l,r,val,p2,mid+1,cr);
-		}
-		int64_t left_val = query(l,r,p1,cl,mid);
-		if(left_val < val) {
-			return lower_bound(l,r,val-left_val,p2,mid+1,cr);
+		if(p1.data < val) {
+			return lower_bound(val - p1.data, p2, mid+1, cr);
 		} else {
-			return lower_bound(l,r,val,p1,cl,mid);
+			return lower_bound(val, p1, cl, mid);
 		}
 	}
 	void update(size_t pos, int64_t val, Node& cur, size_t cl, size_t cr) {
@@ -80,9 +73,9 @@ struct Seg {
 		Node& cur = nodes[0];
 		return query(l,r,cur,0,size-1);
 	}
-	size_t lower_bound(size_t l, size_t r, int64_t val) {
+	size_t lower_bound(int64_t val) {
 		Node& cur = nodes[0];
-		return lower_bound(l,r,val,cur,0,size-1);
+		return lower_bound(val,cur,0,size-1);
 	}
 	void update(size_t pos, int64_t val) {
 		Node& cur = nodes[0];
