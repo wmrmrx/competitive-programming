@@ -82,4 +82,3 @@ struct Seg {
 		update(pos,val,cur,0,size-1);
 	}
 };
-
