@@ -16,9 +16,7 @@ template <typename T, bool MaxQuery = false> struct RMQ {
 			}
 		}
 	}
-	T query(size_t a, size_t b) {
-		assert(a <= b);
-		assert(b < dp[0].size());
+	T query(size_t a, size_t b) const {
 		if(a == b) {
 			return dp[0][a];
 		}
