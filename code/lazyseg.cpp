@@ -7,6 +7,11 @@ struct LazySeg {
 	};
 	const size_t size;
 	vector<Node> nodes;
+	LazySeg(size_t size): size(size) {
+		nodes.reserve(2*size-1);
+		new_node();
+		build(nodes[0],0,size-1);
+	}
 	size_t new_node() {
 		nodes.push_back(Node());
 		return nodes.size()-1;
@@ -23,24 +28,15 @@ struct LazySeg {
 			cur.pool = 0;
 		}
 	}
-	template <typename T> LazySeg(size_t size, const T v[]): size(size) {
-		nodes.reserve(2*size-1);
-		new_node();
-		build(nodes[0],0,size-1,v);
-	}
-	template <typename T> void build(Node& cur, size_t cl, size_t cr, const T v[]) {
+	void build(Node& cur, size_t cl, size_t cr]) {
 		if(cl == cr) {
-			cur.data = v[cl];
 			return;
 		}
 		size_t mid = (cl+cr)/2;
-		cur.lchild = new_node();
-		Node& p1 = nodes[cur.lchild];
-		cur.rchild = new_node();
-		Node& p2 = nodes[cur.rchild];
+		Node& p1 = nodes[cur.lchild = new_node()];
+		Node& p2 = nodes[cur.rchild = new_node()];
 		build(p1, cl, mid, v);
 		build(p2, mid+1, cr, v);
-		cur.data = p1.data + p2.data;
 	}
 	int64_t query(size_t l, size_t r, Node& cur, size_t cl, size_t cr) {
 		refresh(cur, cl, cr);
@@ -53,7 +49,9 @@ struct LazySeg {
 		size_t mid = (cl+cr)/2;
 		Node& p1 = nodes[cur.lchild];
 		Node& p2 = nodes[cur.rchild];
-		return query(l,r,p1,cl,mid) + query(l,r,p2,mid+1,cr);
+		auto ret1 = query(l,r,p1,cl,mid);
+		auto ret2 = query(l,r,p2,mid+1,cr);
+		return ret1+ret2;
 	}
 	void update(size_t l, size_t r, int64_t val, Node& cur, size_t cl, size_t cr) {
 		refresh(cur, cl, cr);
