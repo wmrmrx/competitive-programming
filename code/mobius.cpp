@@ -4,6 +4,7 @@ vector<int> mobius(size_t size) {
 	//         0 if n has a squared prime factor
 	//
 	// f(n) = Σ(g(d)) for d|n => g(n) = Σ(u(d)g(n/d)) for d|n
+	// Σ(u(d)) for d|n = [n == 1]
 	vector<int> ret(size+1);
 	vector<int> marc(size+1);
 	vector<int> div(size+1);
