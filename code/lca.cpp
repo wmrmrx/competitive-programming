@@ -17,7 +17,7 @@ struct LCA {
 			}
 		}
 		dfs(root, root, dfs);
-		rmq.reset(new RMQ<pair<uint32_t, size_t>>(2*size-1, euler_tour.data()));
+		rmq = RMQ<pair<uint32_t, size_t>>(2*size-1, euler_tour.data());
 	}
 	size_t query(size_t a, size_t b) const {
 		if(time[a] > time[b]) {
