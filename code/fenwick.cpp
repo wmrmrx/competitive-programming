@@ -1,27 +1,12 @@
 template <bool OneIndexed = true> struct Fenwick {
-	const size_t size;
-	vector<int64_t> bit;
-	Fenwick(size_t size): size(size) {
-		bit.assign(size+1, 0);
-	}
+	const size_t size; vector<int64_t> bit;
+	Fenwick(size_t size): size(size), bit(size+1) {}
 	void update(size_t id, const int64_t val) {
-		if(!OneIndexed) {
-			id += 1;
-		}
-		while(id <= size) {
-			bit[id] += val;
-			id += 1ULL<<__builtin_ctzll(id);
-		}
+		for(id+=!OneIndexed;id<=size;id+=(1ULL<<__builtin_ctzll(id)))bit[id]+=val;
 	}
-	T query(size_t id) {
-		if(!OneIndexed) {
-			id += 1;
-		}
-		T sum = 0; 
-		while(id > 0) {
-			sum += bit[id];
-			id -= 1ULL<<__builtin_ctzll(id);
-		}
+	int64_t query(size_t id) {
+		size_t sum=0;
+		for(id+=!OneIndexed;id<=size;id-=(1ULL<<__builtin_ctzll(id)))sum+=bit[id];
 		return sum;
 	}
 };
