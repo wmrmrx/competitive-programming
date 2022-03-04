@@ -5,19 +5,13 @@ template <typename T> vector<int> z_alg(size_t size, T s[]) {
 	for(size_t i=1;i<size;i++) {
 		if(i >= r) {
 			l=r=i;
-			while(r<size && s[r-l]==s[r]) {
-				r++;
-			}
+			while(r<size && s[r-l]==s[r]) r++;
 			ret[i] = r-l;
 		} else {
-			size_t k = i-l;
-			if((size_t)ret[k] < r-i) {
-				ret[i] = ret[k];
-			} else {
+			if((size_t)ret[i-l] < r-i) ret[i] = ret[i-l];
+			else {
 				l=i;
-				while(r<size && s[r-l]==s[r]) {
-					r++;
-				}
+				while(r<size && s[r-l]==s[r]) r++;
 				ret[i] = r-l;
 			}
 		}
