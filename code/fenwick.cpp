@@ -6,7 +6,7 @@ template <bool OneIndexed = true> struct Fenwick {
 	}
 	int64_t query(size_t id) {
 		size_t sum=0;
-		for(id+=!OneIndexed;id<=size;id-=id&-id)sum+=bit[id];
+		for(id+=!OneIndexed;id>0;id-=id&-id)sum+=bit[id];
 		return sum;
 	}
 };

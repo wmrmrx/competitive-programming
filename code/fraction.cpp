@@ -10,18 +10,18 @@ struct Fraction {
 			den = _den;
 		}
 	}
-	bool operator==(Fraction& other) const {
-		int64_t l = num*other.den;
-		int64_t r = other.num*den;
-		// __int128_t l = (__int128_t) num*other.den;
-		// __int128_t r = (__int128_t) other.num*den;
+	bool operator==(Fraction& rhs) const {
+		int64_t l = num*rhs.den;
+		int64_t r = rhs.num*den;
+		// __int128_t l = (__int128_t) num*rhs.den;
+		// __int128_t r = (__int128_t) rhs.num*den;
 		return l == r;
 	}
-	bool operator<(const Fraction& other) const {
-		int64_t l = num*other.den;
-		int64_t r = other.num*den;
-		// __int128_t l = (__int128_t) num*other.den;
-		// __int128_t r = (__int128_t) other.num*den;
+	bool operator<(const Fraction& rhs) const {
+		int64_t l = num*rhs.den;
+		int64_t r = rhs.num*den;
+		// __int128_t l = (__int128_t) num*rhs.den;
+		// __int128_t r = (__int128_t) rhs.num*den;
 		return l < r;
 	}
 };
