@@ -9,7 +9,7 @@ struct Seg {
 	struct Node {
 		size_t lchild, rchild;
 		Data data;
-		Node(): lchild(0), rchild(0), data() {}
+		Node(): lchild(-1), rchild(-1), data() {}
 	};
 	const size_t size;
 	vector<Node> nodes;
