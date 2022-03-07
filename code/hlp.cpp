@@ -10,15 +10,15 @@ template <typename SEG> struct HLP {
 	};
 	const size_t size, root;
 	const vector<size_t> g[];
+	const LCA lca;
 	vector<Node> node;
 	vector<SEG> seg;
-	LCA lca;
 	HLP(const size_t size, const size_t root, const vector<size_t> g[]): 
 		size(size), 
 		root(root),
 		g(g), 
-		node(size),
 		lca(size, root, g)
+		node(size),
 	{
 		seg.reserve(size-1);
 		vector<uint32_t> sub(size, 1);
