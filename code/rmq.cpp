@@ -1,7 +1,6 @@
 template <typename T, bool MaxQuery = false> struct RMQ {
 	vector<vector<T>> dp;
-	inline T min_or_max(const T a, const T b) { return MaxQuery ? max(a,b) : min(a,b); }
-	RMQ() {}
+	T min_or_max(const T a, const T b) const { return MaxQuery ? max<T>(a,b) : min<T>(a,b); }
 	RMQ(size_t size, const T v[]) {
 		size_t log = 63-__builtin_clzll(size);
 		dp.assign(log+1, vector<T>(size));
