@@ -1,5 +1,5 @@
+constexpr size_t OOB=1<<31;
 struct Treap {
-	constexpr size_t OOB=1<<31;
 	struct Data {
 		int64_t x;
 		Data(const int64_t x=0): x(x) {}
@@ -38,7 +38,7 @@ struct Treap {
 		if(cur == OOB) { tl = tr = OOB; return; }
 		size_t cur_idx = idx + cnt_left(nodes[cur]);
 		if(pos < cur_idx) tr=cur, split(pos,idx,nodes[cur].lchild,tl,nodes[cur].lchild);
-		else tl=cur, split(pos,cur_idx,nodes[cur].rchild,nodes[cur].rchild,tr);
+		else tl=cur, split(pos,cur_idx+1,nodes[cur].rchild,nodes[cur].rchild,tr);
 		refresh(cur);
 	}
 	void merge(size_t tl, size_t tr, size_t& dest) {
@@ -47,4 +47,31 @@ struct Treap {
 		else dest=tl, merge(nodes[tl].rchild,tr,nodes[tl].rchild);
 		refresh(dest);
 	}
+	int64_t& find(size_t index) {
+		if(root == OOB || nodes[root].sub >= index) return nullptr;
+		size_t cur_idx = cnt_left(nodes[cur]);
+		size_t cur = root;
+		while(cur_index != index) {
+			if(index < cur_index) {
+				cur_idx-=cnt_left(nodes[cur]);
+				cur=nodes[cur].lchild;
+				cur_idx+=cnt_left(nodes[cur]);
+			} else {
+				cur_idx++;
+				cur=nodes[cur].rchild;
+			}
+		}
+		return nodes[cur].data.x;
+	}
+	// TODO
+	void insert(size_t index) {
+
+	}
+	void erase(size_t index) {
+
+	}
 };
+
+
+
+

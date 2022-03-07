@@ -1,5 +1,5 @@
+constexpr size_t OOB=1<<31;
 struct Seg {
-	constexpr size_t OOB=1<<31;
 	struct Data {
 		int64_t x;
 		Data(const int64_t x=0): x(x) {}
