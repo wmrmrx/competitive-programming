@@ -1,9 +1,17 @@
 struct Seg {
 	struct Data {
 		int64_t x;
-		Data(const int64_t x=0): x(x) {}
+		Data(): x(0) {}
+		Data(int64_t x): x(x) {}
+		Data identity() {
+			// data1.merge(data.identity()) = data1
+			return Data(0);
+		}
 		Data merge(const Data& rhs) const { 
 			return Data(x+rhs.x);
+		}
+		void update(const Data& rhs) {
+			x += rhs.x;
 		}
 	};
 	struct Node {
@@ -47,7 +55,7 @@ struct Seg {
 	void update(const size_t pos, const Data data, Node& cur, size_t cl, size_t cr) {
 		if(pos < cl || cr < pos) return;
 		if(cl == cr) { 
-			cur.data.x += data.x;
+			cur.data.update(data);
 			return; 
 		}
 		size_t mid = (cl+cr)/2;
