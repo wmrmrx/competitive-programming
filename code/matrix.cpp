@@ -32,7 +32,7 @@ template <typename T> struct Matrix {
 		col = ret.col;
 		m = ret.m;
 	}
-	Matrix exp(uint32_t num) const {
+	Matrix exp(uint64_t num) const {
 		assert(lin == col);
 		size_t N = lin;
 		Matrix I(N,N);
