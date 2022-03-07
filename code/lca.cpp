@@ -1,6 +1,5 @@
 struct LCA {
-	const vector<size_t> t;
-	const RMQ<pair<uint32_t,size_t>> rmq;
+	const pair<vector<size_t>, RMQ<pair<uint32_t,size_t>>> t;
 	const pair<vector<size_t>, RMQ<pair<uint32_t,size_t>>> 
 		tour(const size_t size, const size_t root, const vector<size_t> g[]) const {
 		vector<pair<uint32_t,size_t>> euler_tour; euler_tour.reserve(2*size-1);
@@ -19,10 +18,9 @@ struct LCA {
 		dfs(root, root, dfs);
 		return {time, RMQ<pair<uint32_t, size_t>>(2*size-1, euler_tour.data())};
 	}
-	LCA(const size_t size, const size_t root, const vector<size_t> g[]): 
-		t(tour(size,root,g).first), rmq(tour(size,root,g).second) {}
+	LCA(const size_t size, const size_t root, const vector<size_t> g[]): t(tour(size,root,g)) {}
 	size_t query(size_t a, size_t b) const {
-		if(t[a] > t[b]) swap(a,b);
-		return (rmq.query(t[a],t[b])).second;
+		if(t.first[a] > t.first[b]) swap(a,b);
+		return (t.second.query(t.first[a],t.first[b])).second;
 	}
 };
