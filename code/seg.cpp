@@ -1,4 +1,3 @@
-constexpr size_t OOB=1<<31;
 struct Seg {
 	struct Data {
 		int64_t x;
@@ -10,7 +9,7 @@ struct Seg {
 	struct Node {
 		size_t lchild, rchild;
 		Data data;
-		Node(): lchild(OOB), rchild(OOB), data() {}
+		Node(): lchild(0), rchild(0), data() {}
 	};
 	const size_t size;
 	vector<Node> nodes;
