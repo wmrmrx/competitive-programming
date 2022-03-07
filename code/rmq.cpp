@@ -1,7 +1,7 @@
 template <typename T, bool MaxQuery = false> struct RMQ {
 	const vector<vector<T>> dp;
 	T min_or_max(const T a, const T b) const { return MaxQuery ? max<T>(a,b) : min<T>(a,b); }
-	vector<vector<T>> build(const size_t size, const T v[]) {
+	const vector<vector<T>> build(const size_t size, const T v[]) {
 		const size_t log = 63-__builtin_clzll(size);
 		vector<vector<T>> ret(log+1, vector<T>(size));
 		for(size_t i=0;i<size;i++)ret[0][i]=v[i];
