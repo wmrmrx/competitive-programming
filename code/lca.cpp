@@ -1,6 +1,6 @@
 struct LCA {
 	vector<size_t> time;
-	RMQ<pair<uint32_t,size_t>> rmq;
+	const RMQ<pair<uint32_t,size_t>> rmq;
 	RMQ<pair<uint32_t,size_t>> tour(const size_t size, const size_t root, const vector<size_t> g[]) {
 		vector<pair<uint32_t, size_t>> euler_tour; euler_tour.reserve(2*size-1);
 		vector<uint32_t> prof(size);
