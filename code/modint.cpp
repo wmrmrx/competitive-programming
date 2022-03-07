@@ -12,6 +12,7 @@ struct Z {
 	void operator-=(const Z rhs){x-=rhs.x;if(x<0)x+=MOD;}
 	void operator*=(const Z rhs){x*=rhs.x;x%=MOD;}
 	void operator/=(const Z rhs){x*=rhs.inv().x;x%=MOD;}
+	bool operator==(const Z rhs)const{return x==rhs.x;}
 	Z operator+(const Z rhs)const{Z ret{x};ret+=rhs;return ret;}
 	Z operator-(const Z rhs)const{Z ret{x};ret-=rhs;return ret;}
 	Z operator*(const Z rhs)const{Z ret{x};ret*=rhs;return ret;}
