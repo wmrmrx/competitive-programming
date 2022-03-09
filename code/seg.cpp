@@ -7,7 +7,7 @@ struct Seg {
 		Data merge(const Data& rhs) const { 
 			return Data(x+rhs.x);
 		}
-		void update(const Data& rhs) {
+		void update(const Data rhs) {
 			x += rhs.x;
 		}
 	};
