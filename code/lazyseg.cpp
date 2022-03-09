@@ -10,7 +10,6 @@ struct LazySeg {
 			// assert( datafoo.merge(identity()) == datafoo ) 
 			return Data(0);
 		}
-
 	};
 	struct LazyData {
 		int64_t x;
