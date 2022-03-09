@@ -1,12 +1,16 @@
 struct LazySeg {
 	struct Data {
 		int64_t x;
-		// assert( data1.merge(Data()) = data1 )
 		Data(): x(0) {}
 		Data(int64_t x): x(x) {}
 		Data merge(const Data& rhs) const { 
 			return Data(x+rhs.x);
 		}
+		static Data identity() {
+			// assert( datafoo.merge(identity()) == datafoo ) 
+			return Data(0);
+		}
+
 	};
 	struct LazyData {
 		int64_t x;
@@ -67,7 +71,7 @@ struct LazySeg {
 	Data query(const size_t l, const size_t r, Node& cur, size_t cl, size_t cr) {
 		refresh(cur, cl, cr);
 		if(r < cl || cr < l) {
-			return Data();
+			return Data::identity();
 		}
 		if(l <= cl && cr <= r) return cur.data;
 		size_t mid = (cl+cr)/2;
