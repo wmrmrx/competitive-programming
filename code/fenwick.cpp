@@ -1,4 +1,4 @@
-template <template typename T, bool OneIndexed = true> struct Fenwick {
+template <typename T, bool OneIndexed = true> struct Fenwick {
 	const size_t size; vector<T> bit;
 	Fenwick(size_t size): size(size), bit(size+1) {}
 	void update(size_t id, const T val) {
