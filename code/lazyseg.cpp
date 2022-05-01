@@ -69,13 +69,10 @@ struct LazySeg {
 	}
 	Data query(const size_t l, const size_t r, Node& cur, size_t cl, size_t cr) {
 		refresh(cur, cl, cr);
-		if(r < cl || cr < l) {
-			return Data::identity();
-		}
+		if(r < cl || cr < l) return Data::identity();
 		if(l <= cl && cr <= r) return cur.data;
 		size_t mid = (cl+cr)/2;
-		Data ret1 = query(l,r,nodes[cur.lchild],cl,mid);
-		Data ret2 = query(l,r,nodes[cur.rchild],mid+1,cr);
+		Data ret1 = query(l,r,nodes[cur.lchild],cl,mid); Data ret2 = query(l,r,nodes[cur.rchild],mid+1,cr);
 		return ret1.merge(ret2);
 	}
 	void update(const size_t l, const size_t r, const Data data, Node& cur, size_t cl, size_t cr) {
@@ -87,10 +84,8 @@ struct LazySeg {
 		refresh(cur, cl, cr);
 		if(r < cl || cr < l) return;
 		size_t mid = (cl+cr)/2;
-		Node& p1 = nodes[cur.lchild];
-		Node& p2 = nodes[cur.rchild];
-		update(l, r, data, p1, cl, mid);
-		update(l, r, data, p2, mid+1, cr);
+		Node& p1 = nodes[cur.lchild]; Node& p2 = nodes[cur.rchild];
+		update(l, r, data, p1, cl, mid); update(l, r, data, p2, mid+1, cr);
 		cur.data = p1.data.merge(p2.data);
 	}
 	Data query(size_t l, size_t r) {
