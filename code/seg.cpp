@@ -10,8 +10,8 @@ struct Seg {
 			// assert( datafoo.merge(identity()) == datafoo ) 
 			return Data(0);
 		}
-		void update(const Data rhs) {
-			x += rhs.x;
+		void update(const Data data) {
+			x += data.x;
 		}
 	};
 	struct Node {
