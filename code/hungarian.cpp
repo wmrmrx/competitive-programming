@@ -33,7 +33,6 @@ template <bool MAXIMIZE=false> struct Hungarian {
 				for(size_t k=0;k<n;k++) 
 					if(!vis[k] && (j == INVALID || d[k] < d[j])) 
 						j = k; 
-				assert(j != INVALID);
 				vis[j] = 1; i = mr[j];
 				if(i == INVALID) break;
 				for(size_t k=0;k<n;k++) if(!vis[k]) {
