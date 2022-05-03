@@ -12,7 +12,7 @@ template <bool MAXIMIZE=false> struct Hungarian {
 		size_t n = w.size();
 		vector<double> d(n), y(n), z(n); // d: Delta
 		vector<size_t> dad(n); vector<bool> vis(n);
-		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
+		for(size_t i=0;i<n;i++) y[i] = *min_element(w[i].begin(), w[i].end());
 		for(size_t j=0;j<n;j++) {
 			z[j] = w[0][j] - y[0];
 			for(size_t i=1;i<n;i++) z[j]=min(z[j], w[i][j]-y[i]);
