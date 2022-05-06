@@ -10,60 +10,41 @@ template <bool MAXIMIZE=false> struct Hungarian {
 		fill(mr.begin(), mr.end(), NONE);
 		size_t n = w.size();
 		vector<double> y(n), z(n), d(n);
-		vector<size_t> dad(n); 
 		vector<bool> S(n), T(n);
 		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
-		size_t match = 0; // number of matching
-		for(size_t i=0;i<n;i++) for(size_t j=0;j<n;j++) {
-			if(mr[j] == NONE && zero(y[i]+z[j]-w[i][j])) {
-				ml[i]=j; mr[j]=i; match++; 
-				break; 
+		auto kuhn = [&](size_t s, auto&& self) -> bool {
+			if(S[s]) return false; S[s] = 1;
+			double diff = y[s]+z[t]-w[s][t];
+			for(size_t t=0;t<n;t++) {
+				if(T[t]) continue;
+				if(zero(diff)) {
+					T[t] = 1;
+					if(mr[t] == NONE || self(mr[t], self)) {
+						mr[t] = s; ml[s] = t;
+						return true;
+					}
+				} else d[t] = min(d[t], diff);
 			}
-		} // speedup
-		auto update_dual = [&](double delta) {
-			for(size_t i=0;i<n;i++) if(S[i]) y[i] -= delta;
+			return false;
+		};
+		for(size_t i=0;i<n;i++) {
+			fill(d.begin(), d.end(), numeric_limits<double>::max());
+			while(true) {
+				fill(S.begin(), S.end(), 0);
+				fill(T.begin(), T.end(), 0);
+				if(dfs(i)) break;
+			}
+			double delta = numeric_limits<double>::max();
+			for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
+			for(size_t s=0;s<n;s++) if(S[s]) y[s] -= delta;
 			for(size_t j=0;j<n;j++) {
 				if(T[j]) z[j] += delta;
 				else d[j] -= delta;
 			}
-		};
-		size_t i=0, j;
-		for(;match<n;match++) {
-			while(ml[i] != NONE) i++;
-			fill(S.begin(), S.end(), 0); fill(T.begin(), T.end(), 0);
-			S[i] = true;
-			for(size_t t=0;t<n;t++) d[t] = y[i]+z[t]-w[i][t];
-			fill(dad.begin(), dad.end(), NONE);
-			while(true) {
-				j = min_element(d.begin(), d.end()) - d.begin();
-				if(!zero(d[j])) {
-					update_dual(d[j]); 
-					continue;
-				}
-				if(mr[j] == NONE) {
-					size_t s=0;
-					while(!S[s] || !zero(y[s]+z[j]-w[s][j])) s++;
-					dad[j] = ml[s];
-					while(dad[j] != NONE) {
-						mr[j] = mr[dad[j]];
-						ml[mr[j]] = j;
-						j = dad[j];
-					}
-					ml[i] = j; mr[j] = i;
-					break;
-				} else {
-					size_t _i = mr[j];
-					S[_i] = true; T[j] = true;
-					d[j] = numeric_limits<double>::max();
-					for(size_t t=0;t<n;t++) if(!T[t]) {
-						double val = y[_i]+z[t]-w[_i][t];
-						if(val < d[t]) d[t] = val, dad[t] = j;
-					}
-				}
-			}
 		}
 		double ret = 0;
-		for(i=0;i<n;i++) ret += w[i][ml[i]];
+		for(size_t i=0;i<n;i++) ret += y[i];
+		for(size_t j=0;j<n;j++) ret += z[j];
 		return MAXIMIZE?ret:-ret;
 	}
 };
