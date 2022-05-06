@@ -19,9 +19,7 @@ template <bool MAXIMIZE=false> struct Hungarian {
 				ml[i] = j; mr[j] = i; match++; break;
 			}
 		}
-		auto update_dual = [&]() {
-			double delta = numeric_limits<double>::max();
-			for(size_t t=0;t<n;t++) if(!T[t]) delta = min(delta, d[t]);
+		auto update_dual = [&](double delta) {
 			for(size_t i=0;i<n;i++) if(S[i]) y[i] -= delta;
 			for(size_t j=0;j<n;j++) {
 				if(T[j]) z[j] += delta;
