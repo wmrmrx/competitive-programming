@@ -1,26 +1,26 @@
 constexpr size_t NONE = numeric_limits<size_t>::max();
-bool zero(int64_t x) { return x == 0; }
+bool zero(double x) { return fabs(x) < 1e-9; }
 template <bool MAXIMIZE=false> struct Hungarian {
-	vector<vector<int64_t>> w;
+	vector<vector<double>> w;
 	vector<size_t> ml, mr; // ml: matched vertexes of left side
-	Hungarian(size_t n): w(n, vector<int64_t>(n)), ml(n), mr(n) {}
-	void set(size_t i, size_t j, int64_t weight) { w[i][j] = MAXIMIZE?weight:-weight; }
-	int64_t assign() {
+	Hungarian(size_t n): w(n, vector<double>(n)), ml(n), mr(n) {}
+	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
+	double assign() {
 		fill(ml.begin(), ml.end(), NONE);
 		fill(mr.begin(), mr.end(), NONE);
 		size_t n = w.size();
-		vector<int64_t> y(n), z(n), d(n);
+		vector<double> y(n), z(n), d(n);
 		vector<size_t> dad(n); 
 		vector<bool> S(n), T(n);
 		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
-		uint64_t match = 0; // number of matching
+		size_t match = 0; // number of matching
 		for(size_t i=0;i<n;i++) for(size_t j=0;j<n;j++) {
 			if(mr[j] == NONE && zero(y[i]+z[j]-w[i][j])) {
 				ml[i]=j; mr[j]=i; match++; 
 				break; 
 			}
 		} // speedup
-		auto update_dual = [&](int64_t delta) {
+		auto update_dual = [&](double delta) {
 			for(size_t i=0;i<n;i++) if(S[i]) y[i] -= delta;
 			for(size_t j=0;j<n;j++) {
 				if(T[j]) z[j] += delta;
@@ -54,15 +54,15 @@ template <bool MAXIMIZE=false> struct Hungarian {
 				} else {
 					size_t _i = mr[j];
 					S[_i] = true; T[j] = true;
-					d[j] = numeric_limits<int64_t>::max();
+					d[j] = numeric_limits<double>::max();
 					for(size_t t=0;t<n;t++) if(!T[t]) {
-						int64_t val = y[_i]+z[t]-w[_i][t];
+						double val = y[_i]+z[t]-w[_i][t];
 						if(val < d[t]) d[t] = val, dad[t] = j;
 					}
 				}
 			}
 		}
-		int64_t ret = 0;
+		double ret = 0;
 		for(i=0;i<n;i++) ret += w[i][ml[i]];
 		return MAXIMIZE?ret:-ret;
 	}
