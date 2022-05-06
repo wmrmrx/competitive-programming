@@ -33,13 +33,13 @@ template <bool MAXIMIZE=false> struct Hungarian {
 				fill(S.begin(), S.end(), 0);
 				fill(T.begin(), T.end(), 0);
 				if(dfs(i)) break;
-			}
-			double delta = numeric_limits<double>::max();
-			for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
-			for(size_t s=0;s<n;s++) if(S[s]) y[s] -= delta;
-			for(size_t j=0;j<n;j++) {
-				if(T[j]) z[j] += delta;
-				else d[j] -= delta;
+				double delta = numeric_limits<double>::max();
+				for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
+				for(size_t s=0;s<n;s++) if(S[s]) y[s] -= delta;
+				for(size_t j=0;j<n;j++) {
+					if(T[j]) z[j] += delta;
+					else d[j] -= delta;
+				}
 			}
 		}
 		double ret = 0;
