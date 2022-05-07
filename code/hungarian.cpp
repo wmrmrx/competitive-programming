@@ -12,6 +12,12 @@ template <bool MAXIMIZE> struct Hungarian {
 		ml.assign(n, NONE); mr.assign(n, NONE);
 		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
 		z.assign(n, 0);
+		for(size_t i=0;i<n;i++) for(size_t j=0;j<n;j++) {
+			if(mr[j] == NONE && zero(y[i]+z[j]-w[i][j])) {
+				ml[i] = j; mr[j] = i;
+				break;
+			}
+		}
 		auto kuhn = [&](size_t s, auto&& self) -> bool {
 			if(S[s]) return false; S[s] = 1;
 			for(size_t t=0;t<n;t++) {
@@ -28,6 +34,7 @@ template <bool MAXIMIZE> struct Hungarian {
 			return false;
 		};
 		for(size_t i=0;i<n;i++) {
+			if(ml[i] != NONE) continue;
 			d.assign(n, numeric_limits<double>::max());
 			while(true) {
 				S.assign(n, 0); T.assign(n, 0);
