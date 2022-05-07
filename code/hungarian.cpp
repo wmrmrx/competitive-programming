@@ -1,3 +1,4 @@
+// IF MINIMIZING BE CAREFUL WITH 0 WEIGHT EDGES!!!
 constexpr size_t NONE = numeric_limits<size_t>::max();
 bool zero(double x) { return abs(x) < 1e-9; }
 template <bool MAXIMIZE> struct Hungarian {
