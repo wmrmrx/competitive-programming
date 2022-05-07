@@ -9,7 +9,7 @@ template <bool MAXIMIZE=false> struct Hungarian {
 	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
 	double assign() {
 		size_t n = w.size();
-		ml.assign(n, 0); mr.assign(n, 0);
+		ml.assign(n, NONE); mr.assign(n, NONE);
 		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
 		z.assign(n, 0);
 		auto kuhn = [&](size_t s, auto&& self) -> bool {
@@ -28,9 +28,9 @@ template <bool MAXIMIZE=false> struct Hungarian {
 			return false;
 		};
 		for(size_t i=0;i<n;i++) {
-			d.assign(numeric_limits<double>::max(), n);
+			d.assign(n, numeric_limits<double>::max());
 			while(true) {
-				S.assign(0, n); T.assign(0, n);
+				S.assign(n, 0); T.assign(n, 0);
 				if(kuhn(i,kuhn)) break;
 				double delta = numeric_limits<double>::max();
 				for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
