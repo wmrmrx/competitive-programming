@@ -3,19 +3,19 @@ bool zero(double x) { return fabs(x) < 1e-9; }
 template <bool MAXIMIZE=false> struct Hungarian {
 	vector<vector<double>> w;
 	vector<size_t> ml, mr; // ml: matched vertexes of left side
-	Hungarian(size_t n): w(n, vector<double>(n)), ml(n), mr(n) {}
+	vector<double> y, z, d;
+	vector<bool> S, T;
+	Hungarian(size_t n): w(n,vector<double>(n)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
 	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
 	double assign() {
-		fill(ml.begin(), ml.end(), NONE);
-		fill(mr.begin(), mr.end(), NONE);
 		size_t n = w.size();
-		vector<double> y(n), z(n), d(n);
-		vector<bool> S(n), T(n);
+		ml.assign(n, 0); mr.assign(n, 0);
 		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
-		auto kuhn = [&](size_t s, auto&& self) -> bool {
+		z.assign(n, 0);
+		const auto kuhn = [&](size_t s, const auto&& self) -> bool {
 			if(S[s]) return false; S[s] = 1;
-			double diff = y[s]+z[t]-w[s][t];
 			for(size_t t=0;t<n;t++) {
+				double diff = y[s]+z[t]-w[s][t];
 				if(T[t]) continue;
 				if(zero(diff)) {
 					T[t] = 1;
@@ -28,11 +28,10 @@ template <bool MAXIMIZE=false> struct Hungarian {
 			return false;
 		};
 		for(size_t i=0;i<n;i++) {
-			fill(d.begin(), d.end(), numeric_limits<double>::max());
+			d.assign(numeric_limits<double>::max, n);
 			while(true) {
-				fill(S.begin(), S.end(), 0);
-				fill(T.begin(), T.end(), 0);
-				if(dfs(i)) break;
+				S.assign(0, n); T.assign(0, n);
+				if(kuhn(i,kuhn)) break;
 				double delta = numeric_limits<double>::max();
 				for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
 				for(size_t s=0;s<n;s++) if(S[s]) y[s] -= delta;
