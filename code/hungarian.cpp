@@ -1,5 +1,4 @@
-// IF MINIMIZING BE CAREFUL WITH 0 WEIGHT EDGES!!!
-// (INITIALIZE W WITH INF)
+constexpr double INIT_W=-1e100;
 constexpr size_t NONE = numeric_limits<size_t>::max();
 bool zero(double x) { return abs(x) < 1e-9; }
 template <bool MAXIMIZE> struct Hungarian {
@@ -7,7 +6,7 @@ template <bool MAXIMIZE> struct Hungarian {
 	vector<size_t> ml, mr; // ml: matched vertexes of left side
 	vector<double> y, z, d;
 	vector<bool> S, T;
-	Hungarian(size_t n): w(n,vector<double>(n,0/*1e100*/)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
+	Hungarian(size_t n): w(n,vector<double>(n,-INIT_W)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
 	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
 	double assign() {
 		size_t n = w.size();
