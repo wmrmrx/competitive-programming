@@ -1,11 +1,11 @@
 struct Dinic {
 	const uint64_t INF = 1ULL<<63;
-	struct DinicEdge {
+	struct Edge {
 		size_t to;
 		uint64_t cap, flow;
 	};
 	vector<vector<size_t>> g;
-	vector<DinicEdge> e;
+	vector<Edge> e;
 	vector<uint64_t> level;
 	Dinic(size_t size) {
 		g.assign(size, vector<size_t>());
