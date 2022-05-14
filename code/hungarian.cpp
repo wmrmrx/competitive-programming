@@ -1,3 +1,4 @@
+// SET INIT_W TO SOMETHING THAT DOESN'T AFFECT THE ANSWER
 constexpr double INIT_W=-1e100;
 constexpr size_t NONE = numeric_limits<size_t>::max();
 bool zero(double x) { return abs(x) < 1e-9; }
