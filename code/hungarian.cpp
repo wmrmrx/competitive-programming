@@ -6,7 +6,7 @@ template <bool MAXIMIZE> struct Hungarian {
 	vector<size_t> ml, mr; // ml: matched vertexes of left side
 	vector<double> y, z, d;
 	vector<bool> S, T;
-	Hungarian(size_t n): w(n,vector<double>(n,-INIT_W)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
+	Hungarian(size_t n): w(n,vector<double>(n,INIT_W)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
 	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
 	double assign() {
 		size_t n = w.size();
