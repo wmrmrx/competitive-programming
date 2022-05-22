@@ -1,4 +1,4 @@
-struct <uint64_t PRIME, uint64_t MOD, typename T> Hash {
+template <uint64_t PRIME, uint64_t MOD, typename T> struct Hash {
 	const size_t size;
 	const T s[];
 	vector<uint64_t> pot, h;
@@ -10,6 +10,6 @@ struct <uint64_t PRIME, uint64_t MOD, typename T> Hash {
 		for(size_t i=1;i<size;i++) h[i] = (h[i]+h[i-1])%MOD;
 	};
 	uint64_t get(size_t a, size_t b) {
-		return ((h[b]-(a?h[a-1]:0))*pot[a])%MOD;
+		return ((MOD+h[b]-(a?h[a-1]:0))*pot[a])%MOD;
 	}
-}
+};
