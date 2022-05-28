@@ -2,13 +2,13 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 template <typename DATA>
 struct Treap {
 	struct node {
-		int cnt, h;
-		DATA data;
-		node* dad;
 		array<node*,2> ch;
+		node* dad;
+		DATA data;
+		int cnt, h;
 
 		node() {}
-		node(DATA data): cnt(1), h(rng()), data(data), dad(0), ch({0, 0}) {}
+		node(DATA data): ch({0, 0}), dad(0), data(data), cnt(1), h(rng()){}
 
 		node* refresh() {
 			cnt = 1;
