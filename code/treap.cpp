@@ -7,13 +7,14 @@ struct Treap {
 		node* dad;
 		array<node*,2> ch;
 
+		node() {}
 		node(DATA data): cnt(1), h(rng()), data(data), dad(0), ch({0, 0}) {}
 
 		node* refresh() {
 			cnt = 1;
-			for(int side: {0, 1}) if(ch[side]) {
-				ch[side]->dad = this;
-				cnt += ch[side]->cnt;
+			for(node* x: ch) if(x) {
+				x->dad = this;
+				cnt += x->cnt;
 			}
 			return this;
 		}
@@ -44,17 +45,17 @@ struct Treap {
 		}
 	}
 
-	array<node*, 2> split(node* a, int pos, int rank = 0) {
-		if(!a) return {0, 0};
-		int cur_rank = rank + cnt(a->ch[0]);
-		if(pos <= cur_rank) {
-			auto res = split(a->ch[0], pos, rank);
-			a->ch[0] = res[1];
-			return { res[0], a->refresh() };
+	array<node*, 2> split(node* x, int pos, int rank = 0) {
+		if(!x) return {0, 0};
+		rank += cnt(x->ch[0]);
+		if(pos <= rank) {
+			auto res = split(x->ch[0], pos, rank-cnt(x->ch[0]));
+			x->ch[0] = res[1];
+			return { res[0], x->refresh() };
 		} else {
-			auto res = split(a->ch[1], pos, cur_rank+1);
-			a->ch[1] = res[0];
-			return { a->refresh(), res[1] };
+			auto res = split(x->ch[1], pos, rank+1);
+			x->ch[1] = res[0];
+			return { x->refresh(), res[1] };
 		}
 	}
 
@@ -70,24 +71,21 @@ struct Treap {
 		root = merge(s1[0], s2[1]);
 	}
 
-	int rank(node* cur) {
+	int rank(node* x) {
 		int res;
-		for(res = cnt(cur->ch[0]); cur != root; cur=cur->dad) {
-			node* l = cur->dad->ch[0];
-			if(l != cur) res += 1 + cnt(l);
+		for(res = cnt(x->ch[0]); x != root; x=x->dad) {
+			node* l = x->dad->ch[0];
+			if(l != x) res += 1 + cnt(l);
 		}
 		return res;
 	}
 
 	node* get(int idx) {
-		node* cur = root;
-		int rank = 0;
-		int cur_rank = rank + cnt(cur->ch[0]);
-		while(cur_rank != idx) {
-			if(idx < cur_rank) cur = cur->ch[0];
-			else cur = cur->ch[1], rank = cur_rank+1;
-			cur_rank = rank + cnt(cur->ch[0]);
+		node* x = root;
+		for(int rank = cnt(x->ch[0]); rank != idx; rank += cnt(x->ch[0])) {
+			if(rank < idx) rank++, x = x->ch[1];
+			else rank -= cnt(x->ch[0]), x = x->ch[0];
 		}
-		return cur;
+		return x;
 	}
 };
