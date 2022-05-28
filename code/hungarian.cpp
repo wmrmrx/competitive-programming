@@ -1,28 +1,39 @@
 // SET INIT_W TO SOMETHING THAT DOESN'T AFFECT THE ANSWER
 constexpr double INIT_W=-1e100;
-constexpr size_t NONE = numeric_limits<size_t>::max();
+constexpr int NONE = numeric_limits<int>::max();
 bool zero(double x) { return abs(x) < 1e-9; }
 template <bool MAXIMIZE> struct Hungarian {
-	vector<vector<double>> w;
-	vector<size_t> ml, mr; // ml: matched vertexes of left side
-	vector<double> y, z, d;
-	vector<bool> S, T;
-	Hungarian(size_t n): w(n,vector<double>(n,INIT_W)),ml(n),mr(n),y(n),z(n),d(n),S(n),T(n) {}
-	void set(size_t i, size_t j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
+	vector<unique_ptr<double[]>> w;
+	unique_ptr<int[]> ml, mr; // ml: matched vertexes of left side
+	unique_ptr<double[]> y, z, d;
+	unique_ptr<bool[]> S, T;
+
+	Hungarian(int n): ml(new int[n]), mr(new int[n]),
+	y(new double[n]), z(new double[n]), d(new double[n]),
+	S(new bool[n]), T(new bool[n]) {
+		w.reserve(n);
+		for(int i=0;i<n;i++) {
+			w.push_back(unique_ptr<double[]>(new double[n]));
+			fill(w[i].get(), w[i].get()+n, INIT_W);
+		}
+	}
+
+	void set(int i, int j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
+
 	double assign() {
-		size_t n = w.size();
-		ml.assign(n, NONE); mr.assign(n, NONE);
-		for(size_t i=0;i<n;i++) y[i] = *max_element(w[i].begin(), w[i].end());
-		z.assign(n, 0);
-		for(size_t i=0;i<n;i++) for(size_t j=0;j<n;j++) {
+		int n = w.size();
+		fill(ml.get(), ml.get()+n, NONE); fill(mr.get(), mr.get()+n, NONE);
+		for(int i=0;i<n;i++) y[i] = *max_element(w[i].get(), w[i].get()+n);
+		fill(z.get(), z.get()+n, 0);
+		for(int i=0;i<n;i++) for(int j=0;j<n;j++) {
 			if(mr[j] == NONE && zero(y[i]+z[j]-w[i][j])) {
 				ml[i] = j; mr[j] = i;
 				break;
 			}
 		}
-		auto kuhn = [&](size_t s, auto&& self) -> bool {
+		auto kuhn = [&](int s, auto&& self) -> bool {
 			if(S[s]) return false; S[s] = 1;
-			for(size_t t=0;t<n;t++) {
+			for(int t=0;t<n;t++) {
 				double diff = y[s]+z[t]-w[s][t];
 				if(T[t]) continue;
 				if(zero(diff)) {
@@ -35,24 +46,23 @@ template <bool MAXIMIZE> struct Hungarian {
 			}
 			return false;
 		};
-		for(size_t i=0;i<n;i++) {
+		for(int i=0;i<n;i++) {
 			if(ml[i] != NONE) continue;
-			d.assign(n, numeric_limits<double>::max());
+			fill(d.get(), d.get()+n, numeric_limits<double>::max());
 			while(true) {
-				S.assign(n, 0); T.assign(n, 0);
+				fill(S.get(), S.get()+n, false); fill(T.get(), T.get()+n, false);
 				if(kuhn(i,kuhn)) break;
 				double delta = numeric_limits<double>::max();
-				for(size_t j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
-				for(size_t s=0;s<n;s++) if(S[s]) y[s] -= delta;
-				for(size_t j=0;j<n;j++) {
+				for(int j=0;j<n;j++) if(!T[j]) delta=min(delta, d[j]);
+				for(int s=0;s<n;s++) if(S[s]) y[s] -= delta;
+				for(int j=0;j<n;j++) {
 					if(T[j]) z[j] += delta;
 					else d[j] -= delta;
 				}
 			}
 		}
 		double ret = 0;
-		for(size_t i=0;i<n;i++) ret += y[i];
-		for(size_t j=0;j<n;j++) ret += z[j];
+		for(int k=0;k<n;k++) ret += y[k] + z[k];
 		return MAXIMIZE?ret:-ret;
 	}
 };
