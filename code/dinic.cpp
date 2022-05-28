@@ -1,34 +1,33 @@
+constexpr int INF = numeric_limits<int>::max();
 struct Dinic {
-	const uint64_t INF = 1ULL<<63;
-	struct Edge {
-		size_t to;
-		uint64_t cap, flow;
+	struct edge {
+		int to;
+		int cap, flow;
 	};
-	vector<vector<size_t>> g;
-	vector<Edge> e;
-	vector<uint64_t> level;
-	Dinic(size_t size) {
-		g.assign(size, vector<size_t>());
-		level.assign(size, -1);
-		e.reserve(size);
-	}
-	void add_edge(size_t s, size_t t, uint64_t capacity) {
+
+	vector<vector<int>> g;
+	vector<int> level;
+	vector<edge> e;
+
+	Dinic(int sz): g(sz), level(sz) {}
+
+	void add_edge(int s, int t, int capacity) {
 		int id = e.size();
 		g[s].push_back(id);
 		e.push_back({t, capacity, 0});
 		g[t].push_back(++id);
 		e.push_back({s, capacity, capacity});
 	}
-	bool BFS(size_t source, size_t sink) {
-		fill(level.begin(), level.end(), 0);
+
+	bool BFS(int source, int sink) {
+		fill(level.begin(), level.end(), INF);
 		level[source] = 0;
-		queue<size_t> q;
-		q.push(source);	
+		queue<int> q{{source}};
 		while(!q.empty() && level[sink] == INF) {
-			size_t cur = q.front();
+			int cur = q.front();
 			q.pop();
-			for(size_t id: g[cur]) {
-				size_t prox = e[id].to;
+			for(int id: g[cur]) {
+				int prox = e[id].to;
 				if(level[prox] != INF || e[id].cap == e[id].flow)
 					continue;
 				level[prox] = level[cur] + 1;
@@ -37,48 +36,33 @@ struct Dinic {
 		}
 		return level[sink] != INF;
 	}
-	uint64_t DFS(size_t v, uint64_t pool, size_t sink, size_t start[]) {
-		if(pool == 0) {
-			return 0;
-		}
-		if(v == sink) {
-			return pool;
-		}
-		for(;start[v]<g[v].size();start[v]++) {
-			size_t id = g[v][start[v]];
-			size_t prox = e[id].to;
-			if(level[v]+1 != level[prox] || e[id].cap == e[id].flow)
-				continue;
-			uint64_t pushed = DFS(prox,min(e[id].cap-e[id].flow,pool),sink,start);
-			if(pushed == 0) {
-				continue;
+
+	int DFS(int v, int pool, int start[], int sink) {
+		if(pool == 0) return 0;
+		if(v == sink) return pool;
+		for(;start[v]<(int)g[v].size();start[v]++) {
+			int id = g[v][start[v]], prox = e[id].to;
+			if(level[v]+1 != level[prox] || e[id].cap == e[id].flow) continue;
+			int pushed = DFS(prox,min(e[id].cap-e[id].flow,pool),start,sink);
+			if(pushed) {
+				e[id].flow += pushed;
+				e[id^1].flow -= pushed;
+				return pushed;
 			}
-			e[id].flow += pushed;
-			e[id^1].flow -= pushed;
-			return pushed;
 		}
 		return 0;
 	}
-	//void reset() {
-	//	for(size_t i=0;i<e.size();i++) {
-	//		if(i&1) {
-	//			e[i].flow = e[i].cap;
-	//		} else {
-	//			e[i].flow = 0;
-	//		}
-	//	}
-	//}
-	uint64_t max_flow(size_t source, size_t sink) {
-		uint64_t total_flow = 0;
-		vector<size_t> start(g.size());
+
+	int max_flow(int source, int sink) {
+		int total_flow = 0;
+		vector<int> start(g.size());
 		while(BFS(source,sink)) {
-			fill(start.begin(),start.end(),0);
-			uint64_t pushed;
-			while((pushed = DFS(source,INF,sink,start.data())) > 0) { 
+			fill(start.begin(), start.end(), 0);
+			while(int pushed = DFS(source,INF,start.data(),sink)) 
 				total_flow += pushed;
-			}
 		}
-		//reset();
+		//reset to initial state
+		//for(int i=0;i<e.size();i++) e[i].flow = (i&1) ? e[i].cap : 0;
 		return total_flow;
 	}
 };
