@@ -8,7 +8,7 @@ struct Treap {
 		int cnt, h;
 
 		node() {}
-		node(DATA data): ch({0, 0}), dad(0), data(data), cnt(1), h(rng()){}
+		node(DATA data): ch({0, 0}), dad(0), data(data), cnt(1), h(rng()) {}
 
 		node* refresh() {
 			cnt = 1;
