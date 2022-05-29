@@ -1,6 +1,7 @@
 template <typename T, bool MAX = false> struct RMQ {
 	vector<vector<T>> dp;
 	T ops(T a, T b) { return MAX ? max<T>(a,b) : min<T>(a,b); }
+	RMQ() {}
 	RMQ(int sz, T v[]) {
 		int log = 64-__builtin_clzll(sz);
 		dp.assign(log, vector<T>(sz));
