@@ -16,16 +16,16 @@ template <bool MAXIMIZE> struct Hungarian {
 		w.reset(new unique_ptr<double[]>[n]);
 		for(int i=0;i<n;i++) {
 			w[i].reset(new double[m]);
-			fill(w[i].get(), w[i].get()+m, INIT_W);
+			fill_n(w[i].get(), m, INIT_W);
 		}
 	}
 
 	void set(int i, int j, double weight) { w[i][j] = MAXIMIZE?weight:-weight; }
 
 	double assign() {
-		fill(ml.get(), ml.get()+n, NONE); fill(mr.get(), mr.get()+m, NONE);
+		fill_n(ml.get(), n, NONE); fill_n(mr.get(), m, NONE);
 		for(int i=0;i<n;i++) y[i] = *max_element(w[i].get(), w[i].get()+m);
-		fill(z.get(), z.get()+m, 0);
+		fill_n(z.get(), m, 0);
 		for(int i=0;i<n;i++) for(int j=0;j<m;j++) {
 			if(mr[j] == NONE && zero(y[i]+z[j]-w[i][j])) {
 				ml[i] = j; mr[j] = i;
@@ -49,9 +49,9 @@ template <bool MAXIMIZE> struct Hungarian {
 		};
 		for(int i=0;i<n;i++) {
 			if(ml[i] != NONE) continue;
-			fill(d.get(), d.get()+m, numeric_limits<double>::max());
+			fill_n(d.get(), m, numeric_limits<double>::max());
 			while(true) {
-				fill(S.get(), S.get()+n, false); fill(T.get(), T.get()+m, false);
+				fill_n(S.get(), n, false); fill_n(T.get(), m, false);
 				if(kuhn(i,kuhn)) break;
 				double delta = numeric_limits<double>::max();
 				for(int j=0;j<m;j++) if(!T[j]) delta=min(delta, d[j]);
