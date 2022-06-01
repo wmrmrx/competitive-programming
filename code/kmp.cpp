@@ -1,4 +1,4 @@
-template <typename T> vector<int> kmp(const T s[], int sz) {
+template <typename T> vector<int> kmp(int sz, T s[]) {
 	vector<int> pi(sz);
 	for(int i=1;i<sz;i++) {
 		int &j = pi[i];
