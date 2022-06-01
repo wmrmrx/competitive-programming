@@ -3,15 +3,14 @@ struct Seg {
 		int mn, mx, sum;
 
 		data(): mn(0), mx(0), sum(0) {}
-		data(int mn, int mx, int sum): mn(mn), mx(mx), sum(sum) {}
 
 		static data nil() {
 			using lim = numeric_limits<int>;
-			return data(lim::max(), lim::min(), 0);
+			return data{lim::max(), lim::min(), 0};
 		}
 
 		data merge(data rhs) {
-			return data(min(mn,rhs.mn),max(mx,rhs.mx),sum+rhs.sum);
+			return data{min(mn,rhs.mn),max(mx,rhs.mx),sum+rhs.sum};
 		}
 	};
 
