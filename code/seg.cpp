@@ -1,76 +1,75 @@
 struct Seg {
-	struct Data {
-		int64_t x;
-		Data(): x(0) {}
-		Data(int64_t x): x(x) {}
-		Data merge(const Data& rhs) const { 
-			return Data(x+rhs.x);
+	struct data {
+		int mn, mx, sum;
+
+		data(): mn(0), mx(0), sum(0) {}
+		data(int mn, int mx, int sum): mn(mn), mx(mx), sum(sum) {}
+
+		static data nil() {
+			using lim = numeric_limits<int>;
+			return data(lim::max(), lim::min(), 0);
 		}
-		static Data identity() {
-			// assert( datafoo.merge(identity()) == datafoo ) 
-			return Data(0);
-		}
-		void update(const Data data) {
-			x += data.x;
+
+		data merge(data rhs) {
+			return data(min(mn,rhs.mn),max(mx,rhs.mx),sum+rhs.sum);
 		}
 	};
-	struct Node {
-		size_t lchild, rchild;
-		Data data;
-		Node(): lchild(0), rchild(0), data() {}
+
+	struct node {
+		node *l, *r;
+		data d;
+
+		node(): l(0), r(0), d() {}
+		node(data d): l(0), r(0), d(d) {}
 	};
-	const size_t size;
-	vector<Node> nodes;
-	Seg(size_t size): size(size) {
-		nodes.reserve(2*size-1);
+
+	int sz;
+	vector<node> arena;
+
+	node* new_node(data d = data::nil()) {
+		arena.push_back(node(d));
+		return &arena.back();
+	}
+
+	Seg(int sz): sz(sz) {
+		arena.reserve(2*sz-1);
 		new_node();
-		build(nodes[0],0,size-1);
+		build(arena[0],0,sz-1);
 	}
-	size_t new_node() {
-		nodes.push_back(Node());
-		return nodes.size()-1;
+
+	void build(node& cur, int cl, int cr) {
+		if(cl == cr) return; 
+		int mid = (cl+cr)/2;
+		cur.l = new_node(); cur.r = new_node();
+		build(*cur.l, cl, mid);
+		build(*cur.r, mid+1, cr);
 	}
-	void build(Node& cur, size_t cl, size_t cr) {
-		if(cl == cr) { 
-			cur.data = Data();
-			return; 
-		}
-		size_t mid = (cl+cr)/2;
-		Node& p1 = nodes[cur.lchild = new_node()];
-		Node& p2 = nodes[cur.rchild = new_node()];
-		build(p1, cl, mid);
-		build(p2, mid+1, cr);
-		cur.data = p1.data.merge(p2.data);
+
+	data query(node& cur, int cl, int cr, int ql, int qr) {
+		if(qr < cl || cr < ql) return data::nil();
+		if(ql <= cl && cr <= qr) return cur.d;
+		int mid = (cl+cr)/2;
+		return query(*cur.l, cl, mid, ql, qr)
+			.merge(query(*cur.r, mid+1, cr, ql, qr));
 	}
-	Data query(const size_t l, const size_t r, Node& cur, size_t cl, size_t cr) {
-		if(r < cl || cr < l) {
-			return Data::identity();
-		}
-		if(l <= cl && cr <= r) return cur.data;
-		size_t mid = (cl+cr)/2;
-		Data ret1 = query(l,r,nodes[cur.lchild],cl,mid);
-		Data ret2 = query(l,r,nodes[cur.rchild],mid+1,cr);
-		return ret1.merge(ret2);
+
+	data query(int ql, int qr) {
+		return query(arena[0], 0, sz-1, ql, qr);
 	}
-	void update(const size_t pos, const Data data, Node& cur, size_t cl, size_t cr) {
+
+	void update(node& cur, int cl, int cr, int pos, int val) {
 		if(pos < cl || cr < pos) return;
-		if(cl == cr) { 
-			cur.data.update(data);
+		if(cl == cr) {
+			cur.d = data(val,val,val);
 			return; 
 		}
-		size_t mid = (cl+cr)/2;
-		Node& p1 = nodes[cur.lchild];
-		Node& p2 = nodes[cur.rchild];
-		update(pos, data, p1, cl, mid);
-		update(pos, data, p2, mid+1, cr);
-		cur.data = p1.data.merge(p2.data);
+		int mid = (cl+cr)/2;
+		update(*cur.l, cl, mid, pos, val);
+		update(*cur.r, mid+1, cr, pos, val);
+		cur.d = cur.l->d.merge(cur.r->d);
 	}
-	Data query(size_t l, size_t r) {
-		Node& cur = nodes[0];
-		return query(l,r,cur,0,size-1);
-	}
-	void update(size_t pos, Data data) {
-		Node& cur = nodes[0];
-		update(pos,data,cur,0,size-1);
+
+	void update(int pos, int val) {
+		return update(arena[0], 0, sz-1, pos, val);
 	}
 };
