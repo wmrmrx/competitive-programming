@@ -34,9 +34,8 @@ template <bool MAXIMIZE> struct Hungarian {
 		}
 		auto kuhn = [&](int s, auto&& self) -> bool {
 			if(S[s]) return false; S[s] = 1;
-			for(int t=0;t<m;t++) {
+			for(int t=0;t<m;t++) if(!T[t]) {
 				double diff = y[s]+z[t]-w[s][t];
-				if(T[t]) continue;
 				if(zero(diff)) {
 					T[t] = 1;
 					if(mr[t] == NONE || self(mr[t], self)) {
@@ -47,8 +46,7 @@ template <bool MAXIMIZE> struct Hungarian {
 			}
 			return false;
 		};
-		for(int i=0;i<n;i++) {
-			if(ml[i] != NONE) continue;
+		for(int i=0;i<n;i++) if(ml[i] == NONE) {
 			fill_n(d.get(), m, numeric_limits<double>::max());
 			while(true) {
 				fill_n(S.get(), n, false); fill_n(T.get(), m, false);
