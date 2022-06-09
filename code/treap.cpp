@@ -38,8 +38,7 @@ struct Treap {
 		if(l->h < r->h) {
 			r->ch[0] = merge(l, r->ch[0]);
 			return r->refresh();
-		}
-		else {
+		} else {
 			l->ch[1] = merge(l->ch[1], r);
 			return l->refresh();
 		}
