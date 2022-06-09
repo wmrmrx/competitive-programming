@@ -2,7 +2,7 @@ struct SuffixArray {
 	vector<int> p, inv, lcp;
 
 	template <typename T>
-	SuffixArray(int sz, const T s[]): p(sz+1), inv(sz+1), lcp(sz, 100) {
+	SuffixArray(int sz, const T s[]): p(sz+1), inv(sz+1), lcp(sz) {
 		iota(p.begin()+1, p.end(), 0);
 		sort(p.begin()+1, p.end(), [&](int i, int j) { return s[i] < s[j]; });
 		p[0] = sz++;
