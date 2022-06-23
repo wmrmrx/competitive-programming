@@ -2,7 +2,7 @@ template <typename T>
 struct BIT {
 	vector<T> bit;
 
-	Fenwick(int sz): sz(sz), bit(sz+1) {}
+	BIT(int sz): sz(sz), bit(sz+1) {}
 
 	void update(int id, T val) {
 		for(;id<(int)bit.size();id+=id&-id) bit[id]+=val;
