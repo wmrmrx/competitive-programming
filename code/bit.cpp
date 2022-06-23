@@ -1,5 +1,5 @@
 template <typename T>
-struct Fenwick {
+struct BIT {
 	vector<T> bit;
 
 	Fenwick(int sz): sz(sz), bit(sz+1) {}
