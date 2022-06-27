@@ -21,7 +21,7 @@ struct LCA {
 	}
 
 	int query(int a, int b) const {
-		if(t.first[a] > t.first[b]) swap(a,b);
-		return (t.second.query(t.first[a],t.first[b])).second;
+		if(etime[a] > etime[b]) swap(a,b);
+		return rmq.query(etime[a],etime[b]).second;
 	}
 };
