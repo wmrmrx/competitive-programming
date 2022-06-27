@@ -1,9 +1,12 @@
+template <typename T>
+using arr = unique_ptr<T[]>;
+
 template <typename T> 
 struct Matrix {
 	int lin, col;
-	unique_ptr<unique_ptr<T[]>[]> m;
+	arr<arr<T>> m;
 
-	Matrix(int lin, int col): lin(lin), col(col), m(new unique_ptr<T[]>[lin]) {
+	Matrix(int lin, int col): lin(lin), col(col), m(new arr<T>[lin]) {
 		for(int i=0;i<lin;i++) m[i].reset(new T[col]);
 		for(int i=0;i<lin;i++) fill_n(m[i].get(), col, 0);
 	}
