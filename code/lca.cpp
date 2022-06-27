@@ -9,18 +9,17 @@ struct LCA {
 		const auto dfs = [&](int v, int dad, const auto& self) -> void {
 			etime[v] = etour.size();
 			etour.push_back({prof[v],v});
-			for(int p: g[v]) {
-				if(p = dad) continue;
+			for(int p: g[v]) if(p != dad) {
 				prof[p] = prof[v]+1;
 				self(p,v,self);
 				etour.push_back({prof[v],v});
 			}
 		};
 		dfs(root, root, dfs);
-		rmq = RMQ<pair<int,int>>(2*size-1, euler_tour.data());
+		rmq = RMQ<pair<int,int>>(2*sz-1, etour.data());
 	}
 
-	int query(int a, int b) const {
+	int query(int a, int b) {
 		if(etime[a] > etime[b]) swap(a,b);
 		return rmq.query(etime[a],etime[b]).second;
 	}

@@ -12,6 +12,6 @@ template <typename T, bool MAX = false> struct RMQ {
 	T query(int a, int b)  {
 		if(a == b) return dp[0][a];
 		int pot = 63-__builtin_clzll(b-a);
-		return min_or_max(dp[pot][a], dp[pot][b-(1<<pot)+1]);
+		return ops(dp[pot][a], dp[pot][b-(1<<pot)+1]);
 	}
 };
