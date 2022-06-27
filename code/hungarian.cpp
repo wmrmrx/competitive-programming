@@ -3,7 +3,7 @@ using arr = unique_ptr<T[]>;
 
 constexpr int NONE = numeric_limits<int>::max();
 
-using w_t = double;
+using w_t = w_t;
 constexpr w_t INF = 1e100;
 bool zero(w_t x) { return abs(x) < 1e-9; }
 
@@ -17,7 +17,7 @@ template <bool MAXIMIZE> struct Hungarian {
 	Hungarian(int n, int m): n(n), m(m), 
 	w(new arr<w_t>[n]),
 	ml(new int[n]), mr(new int[m]),
-	y(new w_t[n]), z(new w_t[m]), d(new double[m]),
+	y(new w_t[n]), z(new w_t[m]), d(new w_t[m]),
 	S(new bool[n]), T(new bool[m]) {
 		for(int i=0;i<n;i++) {
 			w[i].reset(new w_t[m]);
