@@ -1,6 +1,6 @@
 template <typename T> struct RMQ {
 	vector<vector<T>> dp;
-	T ops(T a, T b) { return min<T>(a,b); }
+	T ops(T a, T b) { return min(a,b); }
 	RMQ() {}
 	RMQ(int sz, T v[]) {
 		int log = 64-__builtin_clzll(sz);
