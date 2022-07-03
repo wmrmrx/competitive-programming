@@ -15,5 +15,5 @@ struct line {
 			left(rhs.a, rhs.b, a) != left(rhs.a, rhs.b, b);
 	}
 
-	bool operator==(const line&& rhs) const { return tup{a,b} == tup{rhs.a,rhs.b}; }
+	bool operator==(const line& rhs) const { return tup{a,b} == tup{rhs.a,rhs.b}; }
 };
