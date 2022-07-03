@@ -8,8 +8,8 @@ vector<point> hull(vector<point> v) {
 		if(res.back().x == p.x) continue;
 		while(res.size() >= 2) {
 			point a = res[res.size()-2], b = res.back();
-			// reject collinear points
-			if(!left(a, b, p)) res.pop_back();
+			// INCLUDES COLLINEAR POINTS IN HULL
+			if(right(a, b, p)) res.pop_back();
 			else break;
 		}
 		res.push_back(p);
