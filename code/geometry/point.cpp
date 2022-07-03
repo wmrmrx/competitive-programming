@@ -10,7 +10,8 @@ struct point {
 	point operator-(point rhs) { return {x-rhs.x,y-rhs.y}; }
 	i64 operator*(point rhs) { return x*rhs.x+y*rhs.y; }
 	i64 operator^(point rhs) { return x*rhs.y-y*rhs.x; }
-	bool operator<(const point& rhs) const { return tup{x,y} < tup{rhs.x, rhs.y}; }
+	bool operator<(const point&& rhs) const { return tup{x,y} < tup{rhs.x, rhs.y}; }
+	bool operator==(const point&& rhs) const { return tup{x,y} == tup{rhs.x, rhs.y}; }
 };
 
 // angular comparison in [0, 2pi)
