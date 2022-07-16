@@ -6,7 +6,7 @@ struct SuffixArray {
 		iota(p.begin()+1, p.end(), 0);
 		sort(p.begin()+1, p.end(), [&](int i, int j) { return s[i] < s[j]; });
 		p[0] = sz++;
-		vector<int> ra(sz), newra(sz), newp(sz), cnt(sz+2);
+		vector<int> ra(sz), newra(sz), newp(sz), cnt(sz+1);
 		ra[p[1]] = 1;
 		for(int i=2;i<sz;i++) ra[p[i]] = ra[p[i-1]] + (s[p[i]] != s[p[i-1]]);
 		for(int k=1;k<sz;k*=2) {
