@@ -11,9 +11,9 @@ struct SuffixArray {
 		for(int i=2;i<sz;i++) ra[v[i]] = ra[v[i-1]] + (s[v[i]] != s[v[i-1]]);
 		for(int k=1;k<sz;k*=2) {
 			for(int i=0;i<sz;i++) v[i] = (v[i]-k+sz)%sz;
-			fill(cnt.begin(), cnt.end(), 0);
+			fill(all(cnt), 0);
 			for(int x: ra) cnt[x+1]++;
-			partial_sum(cnt.begin(), cnt.end(), cnt.begin());
+			partial_sum(all(cnt), cnt.begin());
 			for(int i=0;i<sz;i++) newv[cnt[ra[v[i]]]++] = v[i];
 			v.swap(newv);
 			for(int i=1;i<sz;i++) {
