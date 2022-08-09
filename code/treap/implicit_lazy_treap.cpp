@@ -18,6 +18,7 @@ struct Treap {
 				swap(ch[0], ch[1]);
 				for(node* x: ch) if (x)
 					x->reverse = !x->reverse;
+				reverse = 0;
 			}
 		}
 
