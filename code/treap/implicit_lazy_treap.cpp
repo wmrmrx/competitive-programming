@@ -1,117 +1,114 @@
 mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
-template <typename DATA>
+template <typename T>
 struct Treap {
-	struct node {
-		array<node*,2> ch;
-		node* dad;
-		DATA data;
+	struct no {
+		array<no*, 2> c;
+		T dat;
 		int cnt, h;
 
-		// example: interval reversion
-		bool reverse;
+		// reverse interval
+		bool rev;
 
-		node() {}
-		node(DATA data): ch({0, 0}), dad(0), data(data), cnt(1), h(rng()), reverse(0) {}
+		no(T dat=T()): c({0, 0}), dat(dat), cnt(1), h(rng()), rev(0) {}
 
-		void propagate() {
-			if(reverse) {
-				swap(ch[0], ch[1]);
-				for(node* x: ch) if (x)
-					x->reverse = !x->reverse;
-				reverse = 0;
+		// propagate
+		void prop() {
+			if(rev) {
+				swap(c[0], c[1]);
+				for(no* x: c) if(x) x->rev ^= !x->rev;
+				rev = 0;
 			}
 		}
 
-		node* refresh() {
+		// refresh
+		no* ref() {
 			cnt = 1;
-			for(node* x: ch) if(x) {
-				x->propagate();
-				x->dad = this;
+			for(no* x: c) if(x) {
+				x->prop();
 				cnt += x->cnt;
 			}
 			return this;
 		}
+
+		// left child size
+		int l() {
+			return c[0] ? c[0]->cnt : 0;
+		}
 	};
 
+	using childs = array<no*, 2>;
+
 	int sz;
-	node *root;
-	unique_ptr<node[]> arena;
+	no *root;
+	unique_ptr<no[]> arena;
 
-	Treap(int prealloc): sz(0), root(0), arena(new node[prealloc]) {}
+	Treap(int mxsz): sz(0), root(0), arena(new no[mxsz]) {}
 
-	node* new_node(DATA data) {
-		arena[sz] = node(data);
+	no* new_no(T dat) {
+		arena[sz] = no(dat);
 		return &arena[sz++];
 	}
 
-	int cnt(node* x) { return x ? x->cnt : 0; }
+	int cnt(no* x) { return x ? x->cnt : 0; }
 
-	node* merge(node *l, node *r) {
-		if(!l || !r) return l ? l : r;
-		l->propagate(); r->propagate();
-		if(l->h < r->h) {
-			r->ch[0] = merge(l, r->ch[0]);
-			return r->refresh();
+	void merge(childs c, no*& res) {
+		if(!c[0] || !c[1]) {
+			res = c[0] ? c[0] : c[1];
+			return;
 		}
-		else {
-			l->ch[1] = merge(l->ch[1], r);
-			return l->refresh();
-		}
+		for(int i: {0, 1}) c[i]->prop();
+		int i = c[0]->h < c[1]->h;
+		no *l = c[i]->c[!i], *r = c[!i];
+		if(i) swap(l, r);
+		merge({l, r}, c[i]->c[!i]);
+		res = c[i]->ref();
 	}
 
-	array<node*, 2> split(node* x, int pos, int rank = 0) {
-		if(!x) return {0, 0};
-		x->propagate();
-		rank += cnt(x->ch[0]);
-		if(pos <= rank) {
-			auto res = split(x->ch[0], pos, rank-cnt(x->ch[0]));
-			x->ch[0] = res[1];
-			return { res[0], x->refresh() };
-		} else {
-			auto res = split(x->ch[1], pos, rank+1);
-			x->ch[1] = res[0];
-			return { x->refresh(), res[1] };
+	// left treap has size pos
+	void split(no* x, int pos, childs& res, int ra = 0) {
+		if(!x) {
+			res.fill(0);
+			return;
 		}
+		x->prop();
+		ra += x->l();
+		int i = pos > ra;
+		split(x->c[i], pos, res, ra+(i?1:-x->l()));
+		x->c[i] = res[!i];
+		res[!i] = x->ref();
 	}
 
-	void insert(DATA data, int idx) {
-		auto s = split(root, idx);
-		s[0] = merge(s[0], new_node(data));
-		root = merge(s[0], s[1]);
+	void insert(T dat, int idx) {
+		childs s;
+		split(root, idx, s);
+		merge({s[0], new_no(dat)}, root);
+		merge({root, s[1]}, root);
 	}
 
 	void erase(int idx) {
-		auto s1 = split(root, idx);
-		auto s2 = split(s1[1], 1);
-		root = merge(s1[0], s2[1]);
+		childs sl, sr;
+		split(root, idx, sl);
+		split(sl[1], 1, sr);
+		merge({sl[0], sr[1]}, root);
 	}
 
-	// MAY BE WRONG DUE TO LAZINESS
-	int rank(node* x) {
-		int res;
-		for(res = cnt(x->ch[0]); x != root; x=x->dad) {
-			node* l = x->dad->ch[0];
-			if(l != x) res += 1 + cnt(l);
+	T get(int idx) {
+		no* x = root;
+		x->prop();
+		for(int ra = x->l(); ra != idx; ra += x->l()) {
+			if(ra < idx) ra++, x = x->c[1];
+			else ra -= x->l(), x = x->c[0];
+			x->prop();
 		}
-		return res;
-	}
-
-	node* get(int idx) {
-		node* x = root;
-		x->propagate();
-		for(int rank = cnt(x->ch[0]); rank != idx; rank += cnt(x->ch[0])) {
-			if(rank < idx) rank++, x = x->ch[1];
-			else rank -= cnt(x->ch[0]), x = x->ch[0];
-			x->propagate();
-		}
-		return x;
+		return x->dat;
 	}
 
 	void reverse(int l, int r) {
-		auto s1 = split(root, r+1);
-		auto s2 = split(s1[0], l);
-		s2[1]->reverse = !s2[1]->reverse;
-		root = merge(s2[0], s2[1]);
-		root = merge(root, s1[1]);
+		array<no*, 2> sl, sr;
+		split(root, l, sl);
+		split(sl[1], r-l+1, sr);
+		sr[0]->rev = !sr[0]->rev;
+		merge({sl[0], sr[0]}, root);
+		merge({root, sr[1]}, root);
 	}
 };
