@@ -2,6 +2,7 @@ struct point {
 	double x, y;
 	
 	point(double x=0, double y=0): x(x), y(y) {}
+
 	
 	point operator+(point rhs) { return point(x+rhs.x, y+rhs.y); }
 	point operator-(point rhs) { return point(x-rhs.x, y-rhs.y); }
@@ -17,7 +18,10 @@ struct point {
 
 struct segment {
 	point a, b;
+
 	segment(point a=point(), point b=point()): a(a), b(b) {}
+	//FOR SHAMOS HOEY AND INTERSECTION DETECTION
+	//segment(point a=point(), point b=point()): a(min(a,b)), b(max(a,b)) {}
 };
 
 point proj(segment r, point p) {
