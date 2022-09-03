@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 struct point {
 	double x, y;
 	
@@ -28,11 +25,4 @@ point proj(segment r, point p) {
 	p = p - a;
 	point v = b-a;
 	return a + v*((p*v)/(v*v));
-}
-
-signed main() {
-	ios::sync_with_stdio(false); cin.tie(0);
-
-	point p = proj(segment(point(0,2), point(1,2)), point(1512,1));
-	cout << p.x << ' ' << p.y << endl;
 }
