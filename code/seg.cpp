@@ -2,7 +2,8 @@ struct Seg {
 	struct data {
 		int mn, mx, sum;
 
-		data(): mn(0), mx(0), sum(0) {}
+		data() {}
+		data(int val): mn(val), mx(val), sum(val) {}
 
 		static data nil() {
 			using lim = numeric_limits<int>;
@@ -59,7 +60,7 @@ struct Seg {
 	void update(node& cur, int cl, int cr, int pos, int val) {
 		if(pos < cl || cr < pos) return;
 		if(cl == cr) {
-			cur.d = data(val,val,val);
+			cur.d = data(val);
 			return; 
 		}
 		int mid = (cl+cr)/2;
