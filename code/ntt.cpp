@@ -18,9 +18,8 @@ namespace ntt {
 	bool is_prime(int x) {
 		if(x < MAX) return div[x] == x;
 		for(int p: primes) {
-			if(x%p == 0) {
-				return false;
-			}
+			if(p*p > x) break;
+			if(x%p == 0) return false;
 		}
 		return true;
 	}
