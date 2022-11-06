@@ -1,4 +1,4 @@
-//constexpr int64_t MOD = 1000000007;
+//constexpr int64_t MOD = 998244353;
 struct Z {
 	int64_t x;
 	Z(const int64_t _x=0): x(_x%MOD<0?_x%MOD+MOD:_x%MOD) {}
