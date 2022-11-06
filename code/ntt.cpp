@@ -25,22 +25,22 @@ namespace ntt {
 		return true;
 	}
 
-	map<int,int> factorize(int n) {
+	map<int,int> factorize(int x) {
 		map<int,int> f;
-		if(n >= MAX) {
+		if(x < MAX) {
+			while(int p = div[x]) {
+				f[p]++;
+				x /= p;
+			}
+		} else {
 			for(int p: primes) {
-				if(p*p > n) break;
-				while(n%p == 0) {
-					n /= p;
+				if(p*p > x) break;
+				while(x%p == 0) {
+					x /= p;
 					f[p]++;
 				}
 			}
-			if(n > 1) f[n] = 1;
-		} else {
-			while(int p = div[n]) {
-				f[p]++;
-				n /= p;
-			}
+			if(x > 1) f[x] = 1;
 		}
 		return f;
 	}
