@@ -1,6 +1,6 @@
 namespace ntt {
 	constexpr int MAX = 300'000;
-	// div[i]: prime that divides i
+	// div[i]: smallest prime that divides i
 	int div[MAX];
 
 	// primes: list of primes between 2 and MAX
