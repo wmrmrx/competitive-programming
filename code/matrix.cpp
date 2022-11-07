@@ -1,31 +1,28 @@
-template <typename T>
-using arr = unique_ptr<T[]>;
-
 template <typename T> 
 struct Matrix {
-	int lin, col;
-	arr<arr<T>> m;
+	int n, m;
+	vector<T> v;
 
-	Matrix(int lin, int col): lin(lin), col(col), m(new arr<T>[lin]) {
-		for(int i=0;i<lin;i++) m[i].reset(new T[col]);
-		for(int i=0;i<lin;i++) fill_n(m[i].get(), col, 0);
+	Matrix(int _n, int _m): n(_n), m(_m), v(n*m) {}
+
+	T* operator[](int i) {
+		return &v[i*n];
 	}
 
 	Matrix operator*(Matrix& rhs) const {
-		assert(col == rhs.lin);
-		Matrix res(lin, rhs.col);
-		for(int i=0;i<lin;i++) 
-			for(int k=0;k<col;k++)
-				for(int j=0;j<rhs.col;j++)
-					res.m[i][j] += m[i][k]*rhs.m[k][j];
+		//assert(m == rhs.n);
+		Matrix res(n, rhs.m);
+		for(int i=0;i<n;i++) 
+			for(int k=0;k<m;k++)
+				for(int j=0;j<rhs.m;j++)
+					res[i][j] += (*this)[i][k]*rhs[k][j];
 		return res;
 	}
 
-	Matrix exp(uint64_t num) const {
-		assert(lin == col);
-		int n = lin;
+	Matrix exp(int num) {
+		//assert(n == m);
 		Matrix res(n,n);
-		for(int i=0;i<n;i++) res.m[i][i] = 1;
+		for(int i=0;i<n;i++) res[i][i] = 1;
 		for(Matrix copy=*this;num;num/=2,copy=copy*copy)
 			if(num&1) res = res*copy;
 		return res;
