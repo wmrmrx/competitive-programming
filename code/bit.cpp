@@ -1,13 +1,13 @@
 template <typename T>
-struct BIT {
+struct Bit {
 	vector<T> bit;
-	BIT(int sz): bit(sz+1) {}
+	Bit(int sz): bit(sz) {}
 	void update(int id, T val) {
-		for(;id<(int)bit.size();id+=id&-id) bit[id]+=val;
+		for(id++;id<(int)bit.size();id+=id&-id) bit[id-1]+=val;
 	}
 	T query(int id) {
 		T sum = 0;
-		for(;id>0;id-=id&-id) sum+=bit[id];
+		for(id++;id>0;id-=id&-id) sum+=bit[id-1];
 		return sum;
 	}
 };
