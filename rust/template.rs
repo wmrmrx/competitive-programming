@@ -4,9 +4,10 @@
 
 #[allow(dead_code)]
 mod util {
+    static mut BUFFER: String = String::new();
+
     pub struct Scanner<'a> {
         lock: std::io::StdinLock<'static>,
-        buffer: *mut String,
         tokens: std::str::SplitWhitespace<'a>,
     }
 
@@ -14,7 +15,6 @@ mod util {
         pub fn new(lock: std::io::StdinLock<'static>) -> Self {
             Self {
                 lock,
-                buffer: Box::into_raw(Box::new(String::new())),
                 tokens: "".split_whitespace(),
             }
         }
@@ -25,9 +25,12 @@ mod util {
                 if let Some(s) = self.tokens.next() {
                     return s.parse::<T>().unwrap();
                 } else {
-                    unsafe { &mut *self.buffer }.clear();
-                    self.lock.read_line(unsafe { &mut *self.buffer }).unwrap();
-                    self.tokens = unsafe { &*self.buffer }.split_whitespace()
+                    unsafe {
+                        self.tokens = "".split_whitespace();
+                        BUFFER.clear();
+                        self.lock.read_line(&mut BUFFER).unwrap();
+                        self.tokens = BUFFER.split_whitespace()
+                    }
                 }
             }
         }
@@ -48,9 +51,12 @@ mod util {
                 if let Some(s) = self.tokens.next() {
                     return Some(s);
                 } else {
-                    unsafe { &mut *self.buffer }.clear();
-                    self.lock.read_line(unsafe { &mut *self.buffer }).unwrap();
-                    self.tokens = unsafe { &*self.buffer }.split_whitespace()
+                    unsafe {
+                        self.tokens = "".split_whitespace();
+                        BUFFER.clear();
+                        self.lock.read_line(&mut BUFFER).unwrap();
+                        self.tokens = BUFFER.split_whitespace()
+                    }
                 }
             }
         }
