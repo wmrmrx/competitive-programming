@@ -19,10 +19,13 @@ use std::{
     io::Write,
 };
 #[allow(unused_imports)]
-use util::{i, int, Scanner};
+use util::{Scanner, i};
 type In<'a> = Scanner<'a>;
 type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
 /* END DEFAULT IMPORTS */
+
+#[allow(dead_code, non_camel_case_types)]
+type u64 = usize;
 
 #[allow(dead_code)]
 mod util {
@@ -86,13 +89,6 @@ mod util {
     pub fn i<S: std::convert::TryInto<usize>>(i: S) -> usize
     where
         <S as std::convert::TryInto<usize>>::Error: std::fmt::Debug,
-    {
-        return i.try_into().unwrap();
-    }
-
-    pub fn int<S: std::convert::TryInto<i64>>(i: S) -> i64
-    where
-        <S as std::convert::TryInto<i64>>::Error: std::fmt::Debug,
     {
         return i.try_into().unwrap();
     }
