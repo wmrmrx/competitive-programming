@@ -66,7 +66,7 @@ mod util {
 
 #[allow(unused_imports)]
 use std::{
-    collections::{BTreeMap as Map, BTreeSet as Set},
+    collections::{BTreeMap as Map, BTreeSet as Set, VecDeque as Deque},
     io::Write,
 };
 #[allow(unused_imports)]
