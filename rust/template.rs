@@ -36,14 +36,11 @@ mod util {
     }
 
     impl<'a> Scanner<'a> {
-        pub fn new(mut lock: std::io::StdinLock<'a>) -> Self {
-            use std::io::BufRead;
-            let s = Box::into_raw(Box::new(String::new()));
-            lock.read_line(unsafe { s.as_mut() }.unwrap()).unwrap();
+        pub fn new(lock: std::io::StdinLock<'a>) -> Self {
             Self {
                 lock,
-                buffer: s,
-                tokens: unsafe { &*s }.split_whitespace(),
+                buffer: Box::into_raw(Box::new(String::new())),
+                tokens: "".split_whitespace(),
             }
         }
 
