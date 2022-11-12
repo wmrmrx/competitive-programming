@@ -1,31 +1,6 @@
-fn solve(sc: &mut In, bf: &mut Out) -> Ignore {
-    Ok(())
-}
-
-fn main() {
-    let mut sc = Scanner::new(std::io::stdin().lock());
-    let mut out = std::io::BufWriter::new(std::io::stdout().lock());
-    solve(&mut sc, &mut out).unwrap();
-    out.flush().unwrap();
-}
-
 ////////////////////////
 // BEGIN DEFAULT CODE //
 ////////////////////////
-
-#[allow(unused_imports)]
-use std::{
-    collections::{BTreeMap as Map, BTreeSet as Set},
-    io::Write,
-};
-#[allow(unused_imports)]
-use util::{i, Scanner};
-type In<'a> = Scanner<'a>;
-type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
-type Ignore = Result<(), Box<dyn std::error::Error>>;
-
-#[allow(dead_code, non_camel_case_types)]
-type u64 = usize;
 
 #[allow(dead_code)]
 mod util {
@@ -87,4 +62,32 @@ mod util {
     {
         i.try_into().unwrap()
     }
+}
+
+#[allow(unused_imports)]
+use std::{
+    collections::{BTreeMap as Map, BTreeSet as Set},
+    io::Write,
+};
+#[allow(unused_imports)]
+use util::{i, Scanner};
+type In<'a> = Scanner<'a>;
+type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
+type Ignore = Result<(), Box<dyn std::error::Error>>;
+#[allow(dead_code, non_camel_case_types)]
+type u64 = usize;
+
+////////////////////////
+// END DEFAULT CODE //
+////////////////////////
+
+fn solve(sc: &mut In, bf: &mut Out) -> Ignore {
+    Ok(())
+}
+
+fn main() {
+    let mut sc = Scanner::new(std::io::stdin().lock());
+    let mut out = std::io::BufWriter::new(std::io::stdout().lock());
+    solve(&mut sc, &mut out).unwrap();
+    out.flush().unwrap();
 }
