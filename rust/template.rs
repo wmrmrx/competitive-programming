@@ -1,4 +1,4 @@
-fn solve(sc: &mut In, bf: &mut Out) -> Result<(), Box<dyn std::error::Error>> {
+fn solve(sc: &mut In, bf: &mut Out) -> Ignore {
     Ok(())
 }
 
@@ -22,6 +22,7 @@ use std::{
 use util::{i, Scanner};
 type In<'a> = Scanner<'a>;
 type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
+type Ignore = Result<(), Box<dyn std::error::Error>>;
 
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
