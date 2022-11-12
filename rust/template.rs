@@ -32,7 +32,7 @@ mod util {
     pub struct Scanner<'a> {
         lock: std::io::StdinLock<'a>,
         buffer: *mut String,
-        tokens: std::vec::IntoIter<&'a str>,
+        tokens: std::str::SplitWhitespace<'a>,
     }
 
     impl<'a> Scanner<'a> {
@@ -43,10 +43,7 @@ mod util {
             Self {
                 lock,
                 buffer: s,
-                tokens: unsafe { &*s }
-                    .split_whitespace()
-                    .collect::<Vec<&str>>()
-                    .into_iter(),
+                tokens: unsafe { &*s }.split_whitespace(),
             }
         }
 
@@ -58,10 +55,7 @@ mod util {
                 } else {
                     unsafe { &mut *self.buffer }.clear();
                     self.lock.read_line(unsafe { &mut *self.buffer }).unwrap();
-                    self.tokens = unsafe { &*self.buffer }
-                        .split_whitespace()
-                        .collect::<Vec<&str>>()
-                        .into_iter()
+                    self.tokens = unsafe { &*self.buffer }.split_whitespace()
                 }
             }
         }
