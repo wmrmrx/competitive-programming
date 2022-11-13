@@ -1,5 +1,5 @@
 #[allow(dead_code)]
-mod nt {
+mod sieve {
     const N: usize = 300_000;
     static mut SIEVE: [usize; N] = [0; N];
     static mut PRIMES: Vec<usize> = Vec::new();
