@@ -1,6 +1,6 @@
-////////////////
+/////////////////
 // BEGIN DMINT //
-////////////////
+/////////////////
 
 #[derive(Clone, Copy, Debug)]
 pub struct DMint(u32, u32);
@@ -76,6 +76,10 @@ impl std::ops::Neg for DMint {
 }
 
 impl DMint {
+    pub fn new(val: usize, m: usize) -> Self {
+        DMint((val % m) as u32, m as u32)
+    }
+
     pub fn get(self) -> usize {
         self.0 as usize
     }
@@ -98,6 +102,6 @@ impl DMint {
     }
 }
 
-//////////////
+///////////////
 // END DMINT //
-//////////////
+///////////////
