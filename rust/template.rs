@@ -133,7 +133,7 @@ type u64 = usize;
 // END DEFAULT CODE //
 //////////////////////
 
-fn solve(sc: &mut In, bf: &mut Out, global: &mut Global) {
+fn solve(sc: &mut In, bf: &mut Out, gl: &mut Global) {
 }
 
 #[derive(Default)]
