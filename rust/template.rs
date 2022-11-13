@@ -133,18 +133,23 @@ type u64 = usize;
 // END DEFAULT CODE //
 //////////////////////
 
-fn solve(sc: &mut In, bf: &mut Out) {
+fn solve(sc: &mut In, bf: &mut Out, global: &mut Global) {
+}
+
+#[derive(Default)]
+pub struct Global {
 }
 
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
     let mut out = Writer::new(std::io::BufWriter::new(std::io::stdout().lock()));
+    let mut global = Global::default();
 
     let t: u64 = 1;
     //let t: u64 = sc.read();
 
     for _ in 0..t {
-        solve(&mut sc, &mut out);
+        solve(&mut sc, &mut out, &mut global);
     }
 
     out.flush();
