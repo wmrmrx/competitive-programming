@@ -19,6 +19,17 @@ mod util {
             }
         }
 
+        pub fn new_static(mut lock: std::io::StdinLock<'static>) -> Self {
+            use std::io::Read;
+            unsafe {
+                lock.read_to_string(&mut BUFFER).unwrap();
+                Self {
+                    lock,
+                    tokens: BUFFER.split_whitespace(),
+                }
+            }
+        }
+
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
             use std::io::BufRead;
             loop {
