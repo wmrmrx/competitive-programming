@@ -94,6 +94,12 @@ mod util {
             self
         }
 
+        pub fn endl(&mut self) {
+            use std::io::Write;
+            writeln!(self.writer).unwrap();
+            self.writer.flush().unwrap();
+        }
+
         pub fn flush(&mut self) {
             use std::io::Write;
             self.writer.flush().unwrap();
