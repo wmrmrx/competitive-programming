@@ -4,6 +4,7 @@
 
 #[allow(dead_code)]
 mod util {
+    use std::io::Write;
     static mut BUFFER: String = String::new();
 
     pub struct Scanner<'a> {
@@ -83,26 +84,27 @@ mod util {
         }
 
         pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
-            use std::io::Write;
-            write!(self.writer, "{t}").unwrap();
+            let _ = write!(self.writer, "{t}");
             self
         }
 
         pub fn putln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
-            use std::io::Write;
-            writeln!(self.writer, "{t}").unwrap();
+            let _ = writeln!(self.writer, "{t}");
+            self
+        }
+
+        pub fn ws(&mut self) -> &mut Self {
+            let _ = write!(self.writer, " ");
             self
         }
 
         pub fn endl(&mut self) {
-            use std::io::Write;
-            writeln!(self.writer).unwrap();
-            self.writer.flush().unwrap();
+            let _ = writeln!(self.writer);
+            self.flush()
         }
 
         pub fn flush(&mut self) {
-            use std::io::Write;
-            self.writer.flush().unwrap();
+            let _ = self.writer.flush();
         }
     }
 
@@ -137,6 +139,13 @@ fn solve(sc: &mut In, bf: &mut Out) {
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
     let mut out = Writer::new(std::io::BufWriter::new(std::io::stdout().lock()));
-    solve(&mut sc, &mut out);
+
+    let t: u64 = 1;
+    //let t: u64 = sc.read();
+
+    for _ in 0..t {
+        solve(&mut sc, &mut out);
+    }
+
     out.flush();
 }
