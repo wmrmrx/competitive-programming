@@ -85,26 +85,25 @@ mod util {
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, VecDeque as Deque},
     io::Write,
+    fmt::format as fmt
 };
 #[allow(unused_imports)]
 use util::{i, Scanner};
 type In<'a> = Scanner<'a>;
 type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
-type Ignore = Result<(), Box<dyn std::error::Error>>;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
-////////////////////////
+//////////////////////
 // END DEFAULT CODE //
-////////////////////////
+//////////////////////
 
-fn solve(sc: &mut In, bf: &mut Out) -> Ignore {
-    Ok(())
+fn solve(sc: &mut In, bf: &mut Out) {
 }
 
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
     let mut out = std::io::BufWriter::new(std::io::stdout().lock());
-    solve(&mut sc, &mut out).unwrap();
+    solve(&mut sc, &mut out);
     out.flush().unwrap();
 }
