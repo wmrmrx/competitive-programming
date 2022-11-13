@@ -73,6 +73,33 @@ mod util {
         }
     }
 
+    pub struct Writer {
+        writer: std::io::BufWriter<std::io::StdoutLock<'static>>,
+    }
+
+    impl Writer {
+        pub fn new(writer: std::io::BufWriter<std::io::StdoutLock<'static>>) -> Self {
+            Self { writer }
+        }
+
+        pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+            use std::io::Write;
+            write!(self.writer, "{t}").unwrap();
+            self
+        }
+
+        pub fn putln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+            use std::io::Write;
+            writeln!(self.writer, "{t}").unwrap();
+            self
+        }
+
+        pub fn flush(&mut self) {
+            use std::io::Write;
+            self.writer.flush().unwrap();
+        }
+    }
+
     pub fn i<S: std::convert::TryInto<usize>>(i: S) -> usize
     where
         <S as std::convert::TryInto<usize>>::Error: std::fmt::Debug,
@@ -84,13 +111,13 @@ mod util {
 #[allow(unused_imports)]
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, VecDeque as Deque},
+    format as fmt,
     io::Write,
-    fmt::format as fmt
 };
 #[allow(unused_imports)]
-use util::{i, Scanner};
+use util::{i, Scanner, Writer};
 type In<'a> = Scanner<'a>;
-type Out<'a> = std::io::BufWriter<std::io::StdoutLock<'a>>;
+type Out = Writer;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
@@ -103,7 +130,7 @@ fn solve(sc: &mut In, bf: &mut Out) {
 
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
-    let mut out = std::io::BufWriter::new(std::io::stdout().lock());
+    let mut out = Writer::new(std::io::BufWriter::new(std::io::stdout().lock()));
     solve(&mut sc, &mut out);
-    out.flush().unwrap();
+    out.flush();
 }
