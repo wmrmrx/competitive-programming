@@ -74,17 +74,17 @@ impl<const M: u32> std::ops::Neg for Mint<M> {
 
 impl<const M: u32> From<usize> for Mint<M> {
     fn from(val: usize) -> Mint<M> {
-        Mint( (val%M as usize) as u32 )
+        Mint((val % M as usize) as u32)
     }
 }
 
 impl<const M: u32> From<i64> for Mint<M> {
     fn from(val: i64) -> Mint<M> {
         let m = M as i64;
-        if val%m < 0 {
-            Mint((val%m+m) as u32)
+        if val % m < 0 {
+            Mint((val % m + m) as u32)
         } else {
-            Mint((val%m) as u32)
+            Mint((val % m) as u32)
         }
     }
 }
@@ -98,7 +98,7 @@ impl<const M: u32> Mint<M> {
         let mut res = Mint(1);
         let mut pot = self;
         while e > 0 {
-            if e%2 == 1 {
+            if e % 2 == 1 {
                 res *= pot;
             }
             pot *= pot;
@@ -108,7 +108,7 @@ impl<const M: u32> Mint<M> {
     }
 
     pub fn inv(self) -> Self {
-        self.pow((M-2) as usize)
+        self.pow((M - 2) as usize)
     }
 }
 
