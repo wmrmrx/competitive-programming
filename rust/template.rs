@@ -5,17 +5,18 @@
 #[allow(dead_code)]
 mod util {
     use std::cell::UnsafeCell;
-    use std::io::{BufReader, BufRead, BufWriter, Write};
+    use std::io::{BufReader, BufWriter, Read, Write};
 
-    pub struct Scanner<'a, R: BufRead> {
+    pub struct Scanner<'a, R: Read> {
         reader: BufReader<R>,
         buffer: UnsafeCell<String>,
         tokens: std::str::SplitWhitespace<'a>,
     }
 
-    impl<'a, R: BufRead> Iterator for Scanner<'a, R> {
+    impl<'a, R: Read> Iterator for Scanner<'a, R> {
         type Item = &'a str;
         fn next(&mut self) -> Option<Self::Item> {
+            use std::io::BufRead;
             loop {
                 if let Some(s) = self.tokens.next() {
                     break Some(s);
@@ -31,7 +32,7 @@ mod util {
         }
     }
 
-    impl<R: BufRead> Scanner<'_, R> {
+    impl<R: Read> Scanner<'_, R> {
         pub fn new(reader: R) -> Self {
             Self {
                 reader: BufReader::new(reader),
@@ -41,7 +42,7 @@ mod util {
         }
 
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
-            self.tokens.next().unwrap().parse::<T>().unwrap()
+            self.next().unwrap().parse::<T>().unwrap()
         }
 
         pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
@@ -100,12 +101,12 @@ mod util {
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, VecDeque as Deque},
     format as fmt,
-    io::Write,
+    io::{Read, Write},
 };
 #[allow(unused_imports)]
 use util::{i, Scanner, Writer};
-type In<'a> = Scanner<'a, std::io::StdinLock<'static>>;
-type Out = Writer<std::io::StdoutLock<'static>>;
+type In<'a, R> = Scanner<'a, R>;
+type Out<W> = Writer<W>;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
@@ -127,7 +128,7 @@ impl Solver {
 }
 
 impl Solver {
-    fn solve(&mut self, sc: &mut In, bf: &mut Out) {
+    fn solve<R: Read, W: Write>(&mut self, sc: &mut In<R>, bf: &mut Out<W>) {
     }
 }
 
