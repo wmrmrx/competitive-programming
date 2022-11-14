@@ -5,10 +5,10 @@
 #[allow(dead_code)]
 mod util {
     use std::cell::UnsafeCell;
-    use std::io::{BufRead, BufReader, Write};
+    use std::io::{BufRead, BufReader, BufWriter, StdinLock, StdoutLock, Write};
 
     pub struct Scanner<'a> {
-        reader: BufReader<std::io::StdinLock<'static>>,
+        reader: BufReader<StdinLock<'static>>,
         buffer: UnsafeCell<String>,
         tokens: std::str::SplitWhitespace<'a>,
     }
@@ -24,7 +24,7 @@ mod util {
                         self.tokens = "".split_whitespace();
                         self.buffer.get_mut().clear();
                         self.reader.read_line(self.buffer.get_mut()).unwrap();
-                        self.tokens = (&*self.buffer.get()).split_whitespace();
+                        self.tokens = (*self.buffer.get()).split_whitespace();
                     }
                 }
             }
@@ -32,7 +32,7 @@ mod util {
     }
 
     impl Scanner<'_> {
-        pub fn new(lock: std::io::StdinLock<'static>) -> Self {
+        pub fn new(lock: StdinLock<'static>) -> Self {
             Self {
                 reader: BufReader::new(lock),
                 buffer: UnsafeCell::new(String::new()),
@@ -41,7 +41,7 @@ mod util {
         }
 
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
-            return self.tokens.next().unwrap().parse::<T>().unwrap();
+            self.tokens.next().unwrap().parse::<T>().unwrap()
         }
 
         pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
@@ -53,12 +53,14 @@ mod util {
     }
 
     pub struct Writer {
-        writer: std::io::BufWriter<std::io::StdoutLock<'static>>,
+        writer: BufWriter<StdoutLock<'static>>,
     }
 
     impl Writer {
-        pub fn new(writer: std::io::BufWriter<std::io::StdoutLock<'static>>) -> Self {
-            Self { writer }
+        pub fn new(lock: StdoutLock<'static>) -> Self {
+            Self {
+                writer: BufWriter::new(lock),
+            }
         }
 
         pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
@@ -131,18 +133,16 @@ impl Solver {
 
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
-    let mut out = Writer::new(std::io::BufWriter::new(std::io::stdout().lock()));
+    let mut bf = Writer::new(std::io::stdout().lock());
     let mut solver = Solver::new();
 
     let t: u64 = 1;
     //let t: u64 = sc.read();
 
     for case in 0..t {
-        solver.solve(&mut sc, &mut out);
+        solver.solve(&mut sc, &mut bf);
         if case != t - 1 {
             solver.clean();
         }
     }
-
-    out.flush();
 }
