@@ -113,7 +113,7 @@ type u64 = usize;
 // END DEFAULT CODE //
 //////////////////////
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Solver {}
 
 impl Solver {
