@@ -4,47 +4,44 @@
 
 #[allow(dead_code)]
 mod util {
-    use std::io::Write;
-    static mut BUFFER: String = String::new();
+    use std::cell::UnsafeCell;
+    use std::io::{BufRead, BufReader, Write};
 
     pub struct Scanner<'a> {
-        lock: std::io::StdinLock<'static>,
+        reader: BufReader<std::io::StdinLock<'static>>,
+        buffer: UnsafeCell<String>,
         tokens: std::str::SplitWhitespace<'a>,
+    }
+
+    impl<'a> Iterator for Scanner<'a> {
+        type Item = &'a str;
+        fn next(&mut self) -> Option<Self::Item> {
+            loop {
+                if let Some(s) = self.tokens.next() {
+                    break Some(s);
+                } else {
+                    unsafe {
+                        self.tokens = "".split_whitespace();
+                        self.buffer.get_mut().clear();
+                        self.reader.read_line(self.buffer.get_mut()).unwrap();
+                        self.tokens = (&*self.buffer.get()).split_whitespace();
+                    }
+                }
+            }
+        }
     }
 
     impl Scanner<'_> {
         pub fn new(lock: std::io::StdinLock<'static>) -> Self {
             Self {
-                lock,
+                reader: BufReader::new(lock),
+                buffer: UnsafeCell::new(String::new()),
                 tokens: "".split_whitespace(),
             }
         }
 
-        pub fn new_static(mut lock: std::io::StdinLock<'static>) -> Self {
-            use std::io::Read;
-            unsafe {
-                lock.read_to_string(&mut BUFFER).unwrap();
-                Self {
-                    lock,
-                    tokens: BUFFER.split_whitespace(),
-                }
-            }
-        }
-
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
-            use std::io::BufRead;
-            loop {
-                if let Some(s) = self.tokens.next() {
-                    return s.parse::<T>().unwrap();
-                } else {
-                    unsafe {
-                        self.tokens = "".split_whitespace();
-                        BUFFER.clear();
-                        self.lock.read_line(&mut BUFFER).unwrap();
-                        self.tokens = BUFFER.split_whitespace()
-                    }
-                }
-            }
+            return self.tokens.next().unwrap().parse::<T>().unwrap();
         }
 
         pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
@@ -52,25 +49,6 @@ mod util {
             size: usize,
         ) -> Vec<T> {
             (0..size).map(|_| self.read()).collect()
-        }
-    }
-
-    impl<'a> Iterator for Scanner<'a> {
-        type Item = &'a str;
-        fn next(&mut self) -> Option<Self::Item> {
-            use std::io::BufRead;
-            loop {
-                if let Some(s) = self.tokens.next() {
-                    return Some(s);
-                } else {
-                    unsafe {
-                        self.tokens = "".split_whitespace();
-                        BUFFER.clear();
-                        self.lock.read_line(&mut BUFFER).unwrap();
-                        self.tokens = BUFFER.split_whitespace()
-                    }
-                }
-            }
         }
     }
 
@@ -133,23 +111,37 @@ type u64 = usize;
 // END DEFAULT CODE //
 //////////////////////
 
-fn solve(sc: &mut In, bf: &mut Out, gl: &mut Global) {
+#[derive(Default)]
+struct Solver {}
+
+impl Solver {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn clean(&mut self) {
+        *self = Solver::new();
+    }
 }
 
-#[derive(Default)]
-pub struct Global {
+impl Solver {
+    fn solve(&mut self, sc: &mut In, bf: &mut Out) {
+    }
 }
 
 fn main() {
     let mut sc = Scanner::new(std::io::stdin().lock());
     let mut out = Writer::new(std::io::BufWriter::new(std::io::stdout().lock()));
-    let mut global = Global::default();
+    let mut solver = Solver::new();
 
     let t: u64 = 1;
     //let t: u64 = sc.read();
 
-    for _ in 0..t {
-        solve(&mut sc, &mut out, &mut global);
+    for case in 0..t {
+        solver.solve(&mut sc, &mut out);
+        if case != t - 1 {
+            solver.clean();
+        }
     }
 
     out.flush();
