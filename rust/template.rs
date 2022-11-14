@@ -5,15 +5,15 @@
 #[allow(dead_code)]
 mod util {
     use std::cell::UnsafeCell;
-    use std::io::{BufRead, BufReader, BufWriter, StdinLock, StdoutLock, Write};
+    use std::io::{BufReader, BufRead, BufWriter, Write};
 
-    pub struct Scanner<'a> {
-        reader: BufReader<StdinLock<'static>>,
+    pub struct Scanner<'a, R: BufRead> {
+        reader: BufReader<R>,
         buffer: UnsafeCell<String>,
         tokens: std::str::SplitWhitespace<'a>,
     }
 
-    impl<'a> Iterator for Scanner<'a> {
+    impl<'a, R: BufRead> Iterator for Scanner<'a, R> {
         type Item = &'a str;
         fn next(&mut self) -> Option<Self::Item> {
             loop {
@@ -31,10 +31,10 @@ mod util {
         }
     }
 
-    impl Scanner<'_> {
-        pub fn new(lock: StdinLock<'static>) -> Self {
+    impl<R: BufRead> Scanner<'_, R> {
+        pub fn new(reader: R) -> Self {
             Self {
-                reader: BufReader::new(lock),
+                reader: BufReader::new(reader),
                 buffer: UnsafeCell::new(String::new()),
                 tokens: "".split_whitespace(),
             }
@@ -52,14 +52,14 @@ mod util {
         }
     }
 
-    pub struct Writer {
-        writer: BufWriter<StdoutLock<'static>>,
+    pub struct Writer<W: Write> {
+        writer: BufWriter<W>,
     }
 
-    impl Writer {
-        pub fn new(lock: StdoutLock<'static>) -> Self {
+    impl<W: Write> Writer<W> {
+        pub fn new(writer: W) -> Self {
             Self {
-                writer: BufWriter::new(lock),
+                writer: BufWriter::new(writer),
             }
         }
 
@@ -104,8 +104,8 @@ use std::{
 };
 #[allow(unused_imports)]
 use util::{i, Scanner, Writer};
-type In<'a> = Scanner<'a>;
-type Out = Writer;
+type In<'a> = Scanner<'a, std::io::StdinLock<'static>>;
+type Out = Writer<std::io::StdoutLock<'static>>;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
