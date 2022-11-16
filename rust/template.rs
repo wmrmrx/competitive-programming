@@ -114,12 +114,14 @@ type u64 = usize;
 // END DEFAULT CODE //
 //////////////////////
 
-#[derive(Debug, Default)]
-struct Solver {}
+#[derive(Debug)]
+struct Solver {
+}
 
 impl Solver {
     fn new() -> Self {
-        Self::default()
+        Self {
+        }
     }
 
     fn clean(&mut self) {
@@ -140,9 +142,9 @@ fn main() {
     let t: u64 = 1;
     //let t: u64 = sc.read();
 
-    for case in 0..t {
+    for case in 1..=t {
         solver.solve(&mut sc, &mut bf);
-        if case != t - 1 {
+        if case != t {
             solver.clean();
         }
     }
