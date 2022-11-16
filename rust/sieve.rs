@@ -1,19 +1,40 @@
 #[allow(dead_code)]
 mod sieve {
-    const N: usize = 300_000;
-    static mut SIEVE: [usize; N] = [0; N];
-    static mut PRIMES: Vec<usize> = Vec::new();
-
-    pub fn primes() -> &'static [usize] {
-        unsafe { &*PRIMES }
+    #[derive(Debug)]
+    pub struct Sieve<const N: usize> {
+        primes: Vec<usize>,
+        sieve: Vec<usize>,
     }
 
-    pub fn is_prime(x: usize) -> bool {
-        unsafe {
-            if x < N {
-                return x > 1 && SIEVE[x] == x;
+    impl<const N: usize> Sieve<N> {
+        pub fn new() -> Self {
+            let mut res = Self {
+                primes: Vec::new(),
+                sieve: vec![0; N + 1],
+            };
+            for i in 2..=N {
+                if res.sieve[i] == 0 {
+                    res.sieve[i] = i;
+                    res.primes.push(i);
+                    for j in (i * i..=N).step_by(i) {
+                        if res.sieve[j] == 0 {
+                            res.sieve[j] = i;
+                        }
+                    }
+                }
             }
-            for &p in PRIMES.iter() {
+            res
+        }
+
+        pub fn primes(&self) -> &[usize] {
+            &self.primes
+        }
+
+        pub fn is_prime(&self, x: usize) -> bool {
+            if x <= N {
+                return x > 1 && self.sieve[x] == x;
+            }
+            for &p in self.primes.iter() {
                 if p * p > x {
                     break;
                 } else if x % p == 0 {
@@ -22,15 +43,13 @@ mod sieve {
             }
             true
         }
-    }
 
-    /// Returns tuple (prime, exponent)
-    pub fn factorization(mut x: usize) -> Vec<(usize, usize)> {
-        unsafe {
+        /// Returns tuple (prime, exponent)
+        pub fn factorization(&mut self, mut x: usize) -> Vec<(usize, usize)> {
             let mut res = Vec::new();
-            if x < N {
+            if x <= N {
                 while x > 1 {
-                    let p = SIEVE[x];
+                    let p = self.sieve[x];
                     let mut count = 0;
                     while x % p == 0 {
                         count += 1;
@@ -40,7 +59,7 @@ mod sieve {
                 }
                 return res;
             }
-            for &p in PRIMES.iter() {
+            for &p in self.primes.iter() {
                 if p * p > x {
                     break;
                 }
@@ -59,21 +78,6 @@ mod sieve {
             res
         }
     }
-
-    #[forbid(dead_code)]
-    pub fn init() {
-        unsafe {
-            for i in 2..N {
-                if SIEVE[i] == 0 {
-                    SIEVE[i] = i;
-                    PRIMES.push(i);
-                    for j in (i * i..N).step_by(i) {
-                        if SIEVE[j] == 0 {
-                            SIEVE[j] = i;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
+
+type Sieve = sieve::Sieve<300_000>;
