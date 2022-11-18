@@ -103,22 +103,18 @@ mod segtree {
     }
 
     #[derive(Clone, Debug)]
-    pub struct Min {
-        pub min: i64,
-    }
+    pub struct Min(pub i64);
 
     impl Info for Min {
         type Basic = i64;
         fn new(b: Self::Basic) -> Self {
-            Self { min: b }
+            Min(b)
         }
         fn zero() -> Self {
-            Self { min: i64::MAX }
+            Min(i64::MAX)
         }
         fn merge(self, rhs: Self) -> Self {
-            Self {
-                min: self.min.min(rhs.min),
-            }
+            Min(self.0.min(rhs.0))
         }
     }
 }
