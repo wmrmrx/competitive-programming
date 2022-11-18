@@ -82,7 +82,7 @@ mod segtree {
             res
         }
 
-        pub fn new_from(v: &[T::Basic]) -> Self {
+        pub fn from(v: &[T::Basic]) -> Self {
             let size = v.len();
             let mut res = Self {
                 size,
