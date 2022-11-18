@@ -25,7 +25,7 @@ mod segtree {
         ) {
             if cl == cr {
                 self.seg[cur] = if let Some(v) = v {
-                    T::new(v[cur].clone())
+                    T::new(v[cl].clone())
                 } else {
                     T::zero()
                 }
@@ -37,6 +37,8 @@ mod segtree {
                 *cnt += 1;
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
+                let (c1, c2) = self.c[cur];
+                self.seg[cur] = self.seg[c1].clone().merge(self.seg[c2].clone());
             }
         }
 
