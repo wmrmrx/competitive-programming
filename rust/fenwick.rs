@@ -3,14 +3,14 @@ mod fenwick {
     #[derive(Clone, Debug)]
     pub struct Fenwick<T>
     where
-        T: for<'a> std::ops::AddAssign<&'a T> + Default + std::clone::Clone,
+        T: std::ops::AddAssign + Default + std::clone::Clone,
     {
         bit: Vec<T>,
     }
 
     impl<T> Fenwick<T>
     where
-        T: for<'a> std::ops::AddAssign<&'a T> + Default + std::clone::Clone,
+        T: std::ops::AddAssign + Default + std::clone::Clone,
     {
         pub fn new(size: usize) -> Self {
             Self {
@@ -18,10 +18,10 @@ mod fenwick {
             }
         }
 
-        pub fn update(&mut self, mut id: usize, val: &T) {
+        pub fn update(&mut self, mut id: usize, val: T) {
             id += 1;
             while id <= self.bit.len() {
-                self.bit[id - 1] += val;
+                self.bit[id - 1] += val.clone();
                 id += 1 << id.trailing_zeros();
             }
         }
@@ -30,7 +30,7 @@ mod fenwick {
             let mut res = T::default();
             id += 1;
             while id > 0 {
-                res += &self.bit[id - 1];
+                res += self.bit[id - 1].clone();
                 id -= 1 << id.trailing_zeros();
             }
             res
