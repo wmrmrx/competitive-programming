@@ -3,7 +3,7 @@ mod seglazy {
     pub trait Info: Clone + std::fmt::Debug {
         type Basic: Clone + std::fmt::Debug;
         fn new(b: Self::Basic) -> Self;
-        fn add(&mut self, b: Self::Basic) -> Self;
+        fn add(&mut self, b: Self::Basic);
         fn zero() -> Self;
         fn merge(self, rhs: Self) -> Self;
         fn tag(&mut self, b: Self::Basic);
@@ -85,7 +85,7 @@ mod seglazy {
             }
             if ql <= cl && cr <= qr {
                 if cl == cr {
-                    self.seg[cur] = T::new(qv);
+                    self.seg[cur].add(qv);
                 } else {
                     self.seg[cur].tag(qv);
                 }
@@ -141,6 +141,9 @@ mod seglazy {
         fn new(b: Self::Basic) -> Self {
             Min { min: b, tag: None }
         }
+        fn add(&mut self, b: Self::Basic) {
+            self.min += b;
+        }
         fn zero() -> Self {
             Min {
                 min: i64::MAX,
@@ -162,55 +165,7 @@ mod seglazy {
         }
         fn propagate(&mut self, c: Option<(&mut Self, &mut Self)>) {
             if let Some(tag) = self.tag.take() {
-                self.min = tag;
-                if let Some((x, y)) = c {
-                    x.tag(tag);
-                    y.tag(tag);
-                }
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct Sum {
-        pub sum: i64,
-        tag: Option<i64>,
-        len: usize
-    }
-
-    impl Info for Sum {
-        type Basic: = i64;
-        fn new(b: Self::Basic) -> Self {
-            Sum {
-                sum: b,
-                tag: None,
-                len: 1
-            }
-        }
-        fn zero() -> Self {
-            Sum {
-                sum: 0,
-                tag: None,
-                len: 0
-            }
-        }
-        fn merge(self, rhs: Self) -> Self {
-            Sum {
-                sum: self.sum + rhs.sum,
-                tag: None,
-                len: self.len + rhs.len
-            }
-        }
-        fn tag(&mut self, b: Self::Basic) {
-            if let Some(tag) = self.tag.as_mut() {
-                *tag += b;
-            } else {
-                self.tag = Some(b);
-            }
-        }
-        fn propagate(&mut self, c: Option<(&mut Self, &mut Self)>) {
-            if let Some(tag) = self.tag.take() {
-                self.sum += self.len as i64 * tag;
+                self.min += tag;
                 if let Some((x, y)) = c {
                     x.tag(tag);
                     y.tag(tag);
@@ -221,21 +176,4 @@ mod seglazy {
 }
 
 use seglazy::SegLazy;
-type SegSum = SegLazy<seglazy::Sum>;
-
-fn main() {
-    let mut seg = SegSum::from(&[0, 1, 2, 3, 4]);
-
-    for i in 0..5 {
-        println!("{:?}", seg.query(i, i));
-    }
-
-    seg.update(0, 4, 1);
-    seg.update(2, 2, 100);
-
-    for i in 0..5 {
-        for j in i..5 {
-            println!("{i} {j} {:?}", seg.query(i, j));
-        }
-    }
-}
+type SegMin = SegLazy<seglazy::Min>;
