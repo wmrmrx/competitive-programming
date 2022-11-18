@@ -37,8 +37,8 @@ mod segtree {
                 *cnt += 1;
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
-                let (c1, c2) = self.c[cur];
-                self.seg[cur] = self.seg[c1].clone().merge(self.seg[c2].clone());
+                let (x, y) = self.c[cur];
+                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
             }
         }
 
@@ -49,9 +49,9 @@ mod segtree {
                 self.seg[cur].clone()
             } else {
                 let m = (cl + cr) / 2;
-                let (c1, c2) = self.c[cur];
-                self.pquery(c1, cl, m, ql, qr)
-                    .merge(self.pquery(c2, m + 1, cr, ql, qr))
+                let (x, y) = self.c[cur];
+                self.pquery(x, cl, m, ql, qr)
+                    .merge(self.pquery(y, m + 1, cr, ql, qr))
             }
         }
 
@@ -60,13 +60,13 @@ mod segtree {
                 self.seg[cur] = Info::new(qv);
             } else {
                 let m = (cl + cr) / 2;
-                let (c1, c2) = self.c[cur];
+                let (x, y) = self.c[cur];
                 if qp <= m {
-                    self.pupdate(c1, cl, m, qp, qv);
+                    self.pupdate(x, cl, m, qp, qv);
                 } else {
-                    self.pupdate(c2, m + 1, cr, qp, qv);
+                    self.pupdate(y, m + 1, cr, qp, qv);
                 }
-                self.seg[cur] = self.seg[c1].clone().merge(self.seg[c2].clone());
+                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
             }
         }
     }
