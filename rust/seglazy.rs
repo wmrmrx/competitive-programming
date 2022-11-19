@@ -3,10 +3,9 @@ mod seglazy {
     pub trait Info: Clone + std::fmt::Debug {
         type Basic: Clone + std::fmt::Debug;
         fn new(b: Self::Basic) -> Self;
-        fn add(&mut self, b: Self::Basic);
         fn zero() -> Self;
         fn merge(self, rhs: Self) -> Self;
-        fn tag(&mut self, b: Self::Basic);
+        fn put_tag(&mut self, b: Self::Basic);
         fn propagate(&mut self, c: Option<(&mut Self, &mut Self)>);
     }
 
@@ -47,7 +46,7 @@ mod seglazy {
 
         fn propagate(&mut self, cur: usize) {
             let (x, y) = self.c[cur];
-            if x == 0 {
+            if x == 0 && y == 0 {
                 self.seg[cur].propagate(None);
             } else {
                 let (s1, s2) = self.seg.split_at_mut(y);
@@ -84,11 +83,8 @@ mod seglazy {
                 return;
             }
             if ql <= cl && cr <= qr {
-                if cl == cr {
-                    self.seg[cur].add(qv);
-                } else {
-                    self.seg[cur].tag(qv);
-                }
+                self.seg[cur].put_tag(qv);
+                self.propagate(cur);
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -141,9 +137,6 @@ mod seglazy {
         fn new(b: Self::Basic) -> Self {
             Min { min: b, tag: None }
         }
-        fn add(&mut self, b: Self::Basic) {
-            self.min += b;
-        }
         fn zero() -> Self {
             Min {
                 min: i64::MAX,
@@ -156,7 +149,7 @@ mod seglazy {
                 tag: None,
             }
         }
-        fn tag(&mut self, b: Self::Basic) {
+        fn put_tag(&mut self, b: Self::Basic) {
             if let Some(tag) = self.tag.as_mut() {
                 *tag = b.min(*tag);
             } else {
@@ -167,8 +160,8 @@ mod seglazy {
             if let Some(tag) = self.tag.take() {
                 self.min += tag;
                 if let Some((x, y)) = c {
-                    x.tag(tag);
-                    y.tag(tag);
+                    x.put_tag(tag);
+                    y.put_tag(tag);
                 }
             }
         }

@@ -5,6 +5,7 @@ mod segtree {
         fn new(b: Self::Basic) -> Self;
         fn zero() -> Self;
         fn merge(self, rhs: Self) -> Self;
+        fn apply(&mut self, b: Self::Basic);
     }
 
     #[derive(Debug)]
@@ -57,7 +58,7 @@ mod segtree {
 
         fn pupdate(&mut self, cur: usize, cl: usize, cr: usize, qp: usize, qv: T::Basic) {
             if cl == cr {
-                self.seg[cur] = Info::new(qv);
+                self.seg[cur].apply(qv);
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -115,6 +116,9 @@ mod segtree {
         }
         fn merge(self, rhs: Self) -> Self {
             Min(self.0.min(rhs.0))
+        }
+        fn apply(&mut self, b: Self::Basic) {
+            self.0 += b;
         }
     }
 }
