@@ -11,7 +11,7 @@ mod segtree {
     #[derive(Debug)]
     pub struct SegTree<T: Info> {
         size: usize,
-        seg: Vec<T>,
+        info: Vec<T>,
         c: Vec<(usize, usize)>,
     }
 
@@ -25,7 +25,7 @@ mod segtree {
             v: Option<&[T::Basic]>,
         ) {
             if cl == cr {
-                self.seg[cur] = if let Some(v) = v {
+                self.info[cur] = if let Some(v) = v {
                     T::new(v[cl].clone())
                 } else {
                     T::zero()
@@ -39,7 +39,7 @@ mod segtree {
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
                 let (x, y) = self.c[cur];
-                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
+                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
             }
         }
 
@@ -47,7 +47,7 @@ mod segtree {
             if qr < cl || cr < ql {
                 T::zero()
             } else if ql <= cl && cr <= qr {
-                self.seg[cur].clone()
+                self.info[cur].clone()
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -58,7 +58,7 @@ mod segtree {
 
         fn pupdate(&mut self, cur: usize, cl: usize, cr: usize, qp: usize, qv: T::Basic) {
             if cl == cr {
-                self.seg[cur].apply(qv);
+                self.info[cur].apply(qv);
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -67,7 +67,7 @@ mod segtree {
                 } else {
                     self.pupdate(y, m + 1, cr, qp, qv);
                 }
-                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
+                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
             }
         }
     }
@@ -76,7 +76,7 @@ mod segtree {
         pub fn new(size: usize) -> Self {
             let mut res = Self {
                 size,
-                seg: vec![T::zero(); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1],
                 c: vec![(0, 0); 2 * size - 1],
             };
             res.build(0, 0, size - 1, &mut 0, None);
@@ -87,7 +87,7 @@ mod segtree {
             let size = v.len();
             let mut res = Self {
                 size,
-                seg: vec![T::zero(); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1],
                 c: vec![(0, 0); 2 * size - 1],
             };
             res.build(0, 0, size - 1, &mut 0, Some(v));

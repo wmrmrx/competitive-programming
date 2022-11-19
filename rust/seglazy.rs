@@ -12,7 +12,7 @@ mod seglazy {
     #[derive(Debug)]
     pub struct SegLazy<T: Info> {
         size: usize,
-        seg: Vec<T>,
+        info: Vec<T>,
         c: Vec<(usize, usize)>,
     }
 
@@ -26,7 +26,7 @@ mod seglazy {
             v: Option<&[T::Basic]>,
         ) {
             if cl == cr {
-                self.seg[cur] = if let Some(v) = v {
+                self.info[cur] = if let Some(v) = v {
                     T::new(v[cl].clone())
                 } else {
                     T::zero()
@@ -40,16 +40,16 @@ mod seglazy {
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
                 let (x, y) = self.c[cur];
-                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
+                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
             }
         }
 
         fn propagate(&mut self, cur: usize) {
             let (x, y) = self.c[cur];
             if x == 0 && y == 0 {
-                self.seg[cur].propagate(None);
+                self.info[cur].propagate(None);
             } else {
-                let (s1, s2) = self.seg.split_at_mut(y);
+                let (s1, s2) = self.info.split_at_mut(y);
                 let (s0, s1) = s1.split_at_mut(x);
                 s0[cur].propagate(Some((&mut s1[0], &mut s2[0])));
             }
@@ -60,7 +60,7 @@ mod seglazy {
             if qr < cl || cr < ql {
                 T::zero()
             } else if ql <= cl && cr <= qr {
-                self.seg[cur].clone()
+                self.info[cur].clone()
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -83,14 +83,14 @@ mod seglazy {
                 return;
             }
             if ql <= cl && cr <= qr {
-                self.seg[cur].put_tag(qv);
+                self.info[cur].put_tag(qv);
                 self.propagate(cur);
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
                 self.pupdate(x, cl, m, ql, qr, qv.clone());
                 self.pupdate(y, m + 1, cr, ql, qr, qv);
-                self.seg[cur] = self.seg[x].clone().merge(self.seg[y].clone());
+                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
             }
         }
     }
@@ -99,7 +99,7 @@ mod seglazy {
         pub fn new(size: usize) -> Self {
             let mut res = Self {
                 size,
-                seg: vec![T::zero(); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1],
                 c: vec![(0, 0); 2 * size - 1],
             };
             res.build(0, 0, size - 1, &mut 0, None);
@@ -110,7 +110,7 @@ mod seglazy {
             let size = v.len();
             let mut res = Self {
                 size,
-                seg: vec![T::zero(); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1],
                 c: vec![(0, 0); 2 * size - 1],
             };
             res.build(0, 0, size - 1, &mut 0, Some(v));
