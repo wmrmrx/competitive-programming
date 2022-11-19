@@ -2,10 +2,10 @@
 mod seglazy {
     pub trait Info: Clone + std::fmt::Debug {
         type Basic: Clone + std::fmt::Debug;
-        fn new(b: Self::Basic) -> Self;
+        fn new(b: &Self::Basic) -> Self;
         fn zero() -> Self;
-        fn merge(self, rhs: Self) -> Self;
-        fn put_tag(&mut self, b: Self::Basic);
+        fn merge(&self, rhs: &Self) -> Self;
+        fn put_tag(&mut self, b: &Self::Basic);
         fn propagate(&mut self, c: Option<(&mut Self, &mut Self)>);
     }
 
@@ -27,7 +27,7 @@ mod seglazy {
         ) {
             if cl == cr {
                 self.info[cur] = if let Some(v) = v {
-                    T::new(v[cl].clone())
+                    T::new(&v[cl])
                 } else {
                     T::zero()
                 }
@@ -40,7 +40,7 @@ mod seglazy {
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
                 let (x, y) = self.c[cur];
-                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
+                self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
 
@@ -65,7 +65,7 @@ mod seglazy {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
                 self.pquery(x, cl, m, ql, qr)
-                    .merge(self.pquery(y, m + 1, cr, ql, qr))
+                    .merge(&self.pquery(y, m + 1, cr, ql, qr))
             }
         }
 
@@ -76,7 +76,7 @@ mod seglazy {
             cr: usize,
             ql: usize,
             qr: usize,
-            qv: T::Basic,
+            qv: &T::Basic,
         ) {
             self.propagate(cur);
             if qr < cl || cr < ql {
@@ -88,9 +88,9 @@ mod seglazy {
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
-                self.pupdate(x, cl, m, ql, qr, qv.clone());
+                self.pupdate(x, cl, m, ql, qr, qv);
                 self.pupdate(y, m + 1, cr, ql, qr, qv);
-                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
+                self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
     }
@@ -121,7 +121,7 @@ mod seglazy {
             self.pquery(0, 0, self.size - 1, l, r)
         }
 
-        pub fn update(&mut self, l: usize, r: usize, val: T::Basic) {
+        pub fn update(&mut self, l: usize, r: usize, val: &T::Basic) {
             self.pupdate(0, 0, self.size - 1, l, r, val)
         }
     }
@@ -134,8 +134,8 @@ mod seglazy {
 
     impl Info for Min {
         type Basic = i64;
-        fn new(b: Self::Basic) -> Self {
-            Min { min: b, tag: None }
+        fn new(b: &Self::Basic) -> Self {
+            Min { min: *b, tag: None }
         }
         fn zero() -> Self {
             Min {
@@ -143,25 +143,25 @@ mod seglazy {
                 tag: None,
             }
         }
-        fn merge(self, rhs: Self) -> Self {
+        fn merge(&self, rhs: &Self) -> Self {
             Min {
                 min: self.min.min(rhs.min),
                 tag: None,
             }
         }
-        fn put_tag(&mut self, b: Self::Basic) {
+        fn put_tag(&mut self, b: &Self::Basic) {
             if let Some(tag) = self.tag.as_mut() {
-                *tag = b.min(*tag);
+                *tag = (*b).min(*tag);
             } else {
-                self.tag = Some(b);
+                self.tag = Some(*b);
             }
         }
         fn propagate(&mut self, c: Option<(&mut Self, &mut Self)>) {
             if let Some(tag) = self.tag.take() {
                 self.min += tag;
                 if let Some((x, y)) = c {
-                    x.put_tag(tag);
-                    y.put_tag(tag);
+                    x.put_tag(&tag);
+                    y.put_tag(&tag);
                 }
             }
         }

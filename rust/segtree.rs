@@ -2,10 +2,10 @@
 mod segtree {
     pub trait Info: Clone + std::fmt::Debug {
         type Basic: Clone + std::fmt::Debug;
-        fn new(b: Self::Basic) -> Self;
+        fn new(b: &Self::Basic) -> Self;
         fn zero() -> Self;
-        fn merge(self, rhs: Self) -> Self;
-        fn apply(&mut self, b: Self::Basic);
+        fn merge(&self, rhs: &Self) -> Self;
+        fn apply(&mut self, b: &Self::Basic);
     }
 
     #[derive(Debug)]
@@ -26,7 +26,7 @@ mod segtree {
         ) {
             if cl == cr {
                 self.info[cur] = if let Some(v) = v {
-                    T::new(v[cl].clone())
+                    T::new(&v[cl])
                 } else {
                     T::zero()
                 }
@@ -39,7 +39,7 @@ mod segtree {
                 self.c[cur].1 = *cnt;
                 self.build(*cnt, m + 1, cr, cnt, v);
                 let (x, y) = self.c[cur];
-                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
+                self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
 
@@ -52,11 +52,11 @@ mod segtree {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
                 self.pquery(x, cl, m, ql, qr)
-                    .merge(self.pquery(y, m + 1, cr, ql, qr))
+                    .merge(&self.pquery(y, m + 1, cr, ql, qr))
             }
         }
 
-        fn pupdate(&mut self, cur: usize, cl: usize, cr: usize, qp: usize, qv: T::Basic) {
+        fn pupdate(&mut self, cur: usize, cl: usize, cr: usize, qp: usize, qv: &T::Basic) {
             if cl == cr {
                 self.info[cur].apply(qv);
             } else {
@@ -67,7 +67,7 @@ mod segtree {
                 } else {
                     self.pupdate(y, m + 1, cr, qp, qv);
                 }
-                self.info[cur] = self.info[x].clone().merge(self.info[y].clone());
+                self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
     }
@@ -98,7 +98,7 @@ mod segtree {
             self.pquery(0, 0, self.size - 1, l, r)
         }
 
-        pub fn update(&mut self, pos: usize, val: T::Basic) {
+        pub fn update(&mut self, pos: usize, val: &T::Basic) {
             self.pupdate(0, 0, self.size - 1, pos, val)
         }
     }
@@ -108,17 +108,17 @@ mod segtree {
 
     impl Info for Min {
         type Basic = i64;
-        fn new(b: Self::Basic) -> Self {
-            Min(b)
+        fn new(b: &Self::Basic) -> Self {
+            Min(*b)
         }
         fn zero() -> Self {
             Min(i64::MAX)
         }
-        fn merge(self, rhs: Self) -> Self {
+        fn merge(&self, rhs: &Self) -> Self {
             Min(self.0.min(rhs.0))
         }
-        fn apply(&mut self, b: Self::Basic) {
-            self.0 += b;
+        fn apply(&mut self, b: &Self::Basic) {
+            self.0 += *b;
         }
     }
 }
