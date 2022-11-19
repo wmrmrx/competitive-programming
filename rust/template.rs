@@ -89,7 +89,7 @@ mod util {
         }
     }
 
-    pub fn i<S: std::convert::TryInto<usize>>(i: S) -> usize
+    pub fn uint<S: std::convert::TryInto<usize>>(i: S) -> usize
     where
         <S as std::convert::TryInto<usize>>::Error: std::fmt::Debug,
     {
@@ -99,12 +99,12 @@ mod util {
 
 #[allow(unused_imports)]
 use std::{
-    collections::{BTreeMap as Map, BTreeSet as Set, VecDeque as Deque},
+    collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque},
     format as fmt,
     io::{Read, Write},
 };
 #[allow(unused_imports)]
-use util::{i, Scanner, Writer};
+use util::{uint, Scanner, Writer};
 type In<'a, R> = Scanner<'a, R>;
 type Out<W> = Writer<W>;
 #[allow(dead_code, non_camel_case_types)]
@@ -115,13 +115,11 @@ type u64 = usize;
 //////////////////////
 
 #[derive(Debug)]
-struct Solver {
-}
+struct Solver {}
 
 impl Solver {
     fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 
     fn clean(&mut self) {
