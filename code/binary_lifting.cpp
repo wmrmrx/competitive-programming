@@ -14,7 +14,7 @@ struct BLift {
 			}
 		};
 		dfs(root, root);
-		for(int l=0;l<log;l++) {
+		for(int l=1;l<log;l++) {
 			auto &cur = dp[l], &ant = dp[l-1];
 			for(int i=0;i<sz;i++) 
 				cur[i] = ant[ant[i]];
