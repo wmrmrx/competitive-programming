@@ -4,14 +4,14 @@ struct Data {
 	Data(): mn(numeric_limits<int>::max()) {}
 	Data(int x): mn(x) {}
 
-	Data operator+(const Data rhs) const {
+	friend Data operator+(const Data lhs, const Data rhs) {
 		Data res;
-		res.mn = min(mn, rhs.mn);
+		res.mn = min(lhs.mn, rhs.mn);
 		return res;
 	}
 };
 
-template <typename D, typename U=int> 
+template <typename D, typename U=int, bool SUBSTITUTION=true> 
 class Seg {
 private: 
 	struct node {
@@ -45,7 +45,11 @@ private:
 
 	void update(node& cur, const int cl, const int cr, const int pos, const U& val) {
 		if(cr < pos || pos < cl) return;
-		if(cl == cr) { cur.data = D(val); return; }
+		if(cl == cr) { 
+			if constexpr(SUBSTITUTION) cur.data = D(val); 
+			else cur.data = cur.data + D(val); 
+			return; 
+		}
 		const int m = (cl + cr)/2;
 		update(*cur.l, cl, m, pos, val); update(*cur.r, m+1, cr, pos, val);
 		cur.data = cur.l->data + cur.r->data;
