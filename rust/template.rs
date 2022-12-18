@@ -44,12 +44,28 @@ mod util {
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
             self.next().unwrap().parse::<T>().unwrap()
         }
+        
+        pub fn readu(&mut self) -> usize {
+            self.read::<usize>()
+        }
+
+        pub fn readi(&mut self) -> i64 {
+            self.read::<i64>()
+        }
 
         pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
             &mut self,
             size: usize,
         ) -> Vec<T> {
             (0..size).map(|_| self.read()).collect()
+        }
+
+        pub fn readu_vec(&mut self, size: usize) -> Vec<usize> {
+            self.read_vec::<usize>(size)
+        }
+
+        pub fn readi_vec(&mut self, size: usize) -> Vec<i64> {
+            self.read_vec::<i64>(size)
         }
     }
 
@@ -88,13 +104,6 @@ mod util {
             let _ = self.writer.flush();
         }
     }
-
-    pub fn uint<S: std::convert::TryInto<usize>>(i: S) -> usize
-    where
-        <S as std::convert::TryInto<usize>>::Error: std::fmt::Debug,
-    {
-        i.try_into().unwrap()
-    }
 }
 
 #[allow(unused_imports)]
@@ -104,7 +113,7 @@ use std::{
     io::{Read, Write},
 };
 #[allow(unused_imports)]
-use util::{uint, Scanner, Writer};
+use util::{Scanner, Writer};
 type In<'a, R> = Scanner<'a, R>;
 type Out<W> = Writer<W>;
 #[allow(dead_code, non_camel_case_types)]
