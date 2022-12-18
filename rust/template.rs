@@ -67,6 +67,20 @@ mod util {
         pub fn readi_vec(&mut self, size: usize) -> Vec<i64> {
             self.read_vec::<i64>(size)
         }
+
+        pub fn read_arr<T: std::str::FromStr<Err = impl std::fmt::Debug>, const N: usize>(
+            &mut self,
+        ) -> [T; N] {
+            std::array::from_fn(|_| self.read())
+        }
+
+        pub fn readu_arr<const N: usize>(&mut self) -> [usize; N] {
+            self.read_arr::<usize, N>()
+        }
+
+        pub fn readi_arr<const N: usize>(&mut self) -> [i64; N] {
+            self.read_arr::<i64, N>()
+        }
     }
 
     pub struct Writer<W: Write> {
