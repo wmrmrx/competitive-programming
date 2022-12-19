@@ -1,5 +1,6 @@
 #[allow(dead_code)]
 mod matrix {
+    #[derive(Clone, Debug)]
     pub struct Matrix<T: Clone + Default> {
         col: usize,
         mat: Box<[T]>,
