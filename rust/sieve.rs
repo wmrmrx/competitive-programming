@@ -45,7 +45,7 @@ mod sieve {
         }
 
         /// Returns tuple (prime, exponent)
-        pub fn factorization(&mut self, mut x: usize) -> Vec<(usize, usize)> {
+        pub fn factorization(&self, mut x: usize) -> Vec<(usize, usize)> {
             let mut res = Vec::new();
             if x <= N {
                 while x > 1 {
