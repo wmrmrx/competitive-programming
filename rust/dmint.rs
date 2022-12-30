@@ -108,3 +108,4 @@ mod dmint {
         }
     }
 }
+use dmint::DMint;

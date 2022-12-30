@@ -167,6 +167,5 @@ mod seglazy {
         }
     }
 }
-
 use seglazy::SegLazy;
 type SegMin = SegLazy<seglazy::Min>;

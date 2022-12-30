@@ -52,4 +52,4 @@ mod rng {
         }
     }
 }
-type Rng = rng::Xoshiro256PlusPlus;
+use rng::Xoshiro256PlusPlus as Rng;

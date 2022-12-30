@@ -78,5 +78,4 @@ mod bitset {
         }
     }
 }
-
 use bitset::BitSet;

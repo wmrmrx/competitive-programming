@@ -55,5 +55,4 @@ mod fenwick {
         }
     }
 }
-
 use fenwick::Fenwick;

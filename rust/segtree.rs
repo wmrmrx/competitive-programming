@@ -122,6 +122,5 @@ mod segtree {
         }
     }
 }
-
 use segtree::{Min, SegTree};
 type SegMin = SegTree<Min>;

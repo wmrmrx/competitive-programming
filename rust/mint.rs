@@ -101,5 +101,5 @@ mod mint {
         }
     }
 }
-
 use mint::Mint;
+type Z = Mint<998244353>;

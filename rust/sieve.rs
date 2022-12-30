@@ -79,5 +79,4 @@ mod sieve {
         }
     }
 }
-
 type Sieve = sieve::Sieve<300_000>;
