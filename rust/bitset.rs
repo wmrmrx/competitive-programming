@@ -1,17 +1,15 @@
 #[allow(dead_code)]
 mod bitset {
     #[derive(Clone, Debug)]
-    pub struct BitSet {
+    pub struct BitSet<const N: usize> {
         size: usize,
-        v: Vec<u64>,
+        v: [u64; N],
     }
 
-    impl BitSet {
+    impl<const N: usize> BitSet<N> {
         pub fn new(size: usize) -> Self {
-            Self {
-                size,
-                v: vec![0; (size + 63) / 64],
-            }
+            assert!(size <= 64 * N);
+            Self { size, v: [0; N] }
         }
 
         pub fn reset_all(&mut self) {
@@ -43,7 +41,7 @@ mod bitset {
         pub fn get(&mut self, idx: usize) -> bool {
             assert!(idx < self.size);
             let (n, m) = (idx / 64, idx % 64);
-            self.v[n] & (1 << (m)) != 0
+            self.v[n] & (1 << m) != 0
         }
 
         pub fn count_ones(&mut self) -> usize {
@@ -51,8 +49,8 @@ mod bitset {
         }
     }
 
-    impl std::ops::BitAndAssign<&BitSet> for BitSet {
-        fn bitand_assign(&mut self, rhs: &BitSet) {
+    impl<const N: usize> std::ops::BitAndAssign<&BitSet<N>> for BitSet<N> {
+        fn bitand_assign(&mut self, rhs: &BitSet<N>) {
             assert_eq!(self.size, rhs.size);
             for i in 0..self.size {
                 self.v[i] &= rhs.v[i];
@@ -60,8 +58,8 @@ mod bitset {
         }
     }
 
-    impl std::ops::BitOrAssign<&BitSet> for BitSet {
-        fn bitor_assign(&mut self, rhs: &BitSet) {
+    impl<const N: usize> std::ops::BitOrAssign<&BitSet<N>> for BitSet<N> {
+        fn bitor_assign(&mut self, rhs: &BitSet<N>) {
             assert_eq!(self.size, rhs.size);
             for i in 0..self.size {
                 self.v[i] |= rhs.v[i];
@@ -69,8 +67,8 @@ mod bitset {
         }
     }
 
-    impl std::ops::BitXorAssign<&BitSet> for BitSet {
-        fn bitxor_assign(&mut self, rhs: &BitSet) {
+    impl<const N: usize> std::ops::BitXorAssign<&BitSet<N>> for BitSet<N> {
+        fn bitxor_assign(&mut self, rhs: &BitSet<N>) {
             assert_eq!(self.size, rhs.size);
             for i in 0..self.size {
                 self.v[i] ^= rhs.v[i];
