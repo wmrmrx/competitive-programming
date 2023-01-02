@@ -1,12 +1,12 @@
 struct Data {
-	int mn;
+	int x;
 
-	Data(): mn(numeric_limits<int>::max()) {}
-	Data(int x): mn(x) {}
+	Data(): x(numeric_limits<int>::max()) {}
+	Data(int _x): x(_x) {}
 
 	friend Data operator+(const Data lhs, const Data rhs) {
 		Data res;
-		res.mn = min(lhs.mn, rhs.mn);
+		res.x = min(lhs.x, rhs.x);
 		return res;
 	}
 };
