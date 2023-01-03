@@ -7,7 +7,7 @@ mod fenwick {
 
     impl<T> Fenwick<T>
     where
-        T: Default + std::clone::Clone + std::marker::Copy + std::ops::Add<Output = T>,
+        T: Default + Clone + Copy + std::ops::Add<Output = T>,
     {
         pub fn new(size: usize) -> Self {
             Self {
@@ -18,7 +18,7 @@ mod fenwick {
         pub fn update(&mut self, mut id: usize, val: T) {
             id += 1;
             while id <= self.bit.len() {
-                self.bit[id - 1] += val;
+                self.bit[id - 1] = self.bit[id - 1] + val;
                 id += 1 << id.trailing_zeros();
             }
         }
@@ -36,11 +36,7 @@ mod fenwick {
 
     impl<T> Fenwick<T>
     where
-        T: Default
-            + std::clone::Clone
-            + std::marker::Copy
-            + std::ops::Add<Output = T>
-            + std::ops::Sub<Output = T>,
+        T: Default + Clone + Copy + std::ops::Add<Output = T> + std::ops::Sub<Output = T>,
     {
         pub fn range(&self, l: usize, r: usize) -> T {
             self.query(r)
