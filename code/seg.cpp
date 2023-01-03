@@ -11,7 +11,7 @@ struct Data {
 	}
 };
 
-template <typename D, typename U=int, bool SUBSTITUTION=true> 
+template <typename D, typename U=int, bool SUBSTITUTION=false> 
 class Seg {
 private: 
 	struct node {
