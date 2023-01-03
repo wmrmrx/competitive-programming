@@ -10,7 +10,7 @@ mod seglazy {
     }
 
     #[derive(Debug)]
-    pub struct SegLazy<T: Info> {
+    pub struct SegLazy<T> {
         size: usize,
         info: Vec<T>,
         c: Vec<(usize, usize)>,

@@ -1,10 +1,7 @@
 #[allow(dead_code)]
 mod fenwick {
     #[derive(Clone, Debug)]
-    pub struct Fenwick<T>
-    where
-        T: Default + std::clone::Clone + std::marker::Copy + std::ops::Add<Output = T>,
-    {
+    pub struct Fenwick<T> {
         bit: Vec<T>,
     }
 
@@ -21,7 +18,7 @@ mod fenwick {
         pub fn update(&mut self, mut id: usize, val: T) {
             id += 1;
             while id <= self.bit.len() {
-                self.bit[id - 1] = self.bit[id - 1] + val;
+                self.bit[id - 1] += val;
                 id += 1 << id.trailing_zeros();
             }
         }

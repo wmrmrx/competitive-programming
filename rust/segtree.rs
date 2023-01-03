@@ -9,7 +9,7 @@ mod segtree {
     }
 
     #[derive(Debug)]
-    pub struct SegTree<T: Info> {
+    pub struct SegTree<T> {
         size: usize,
         info: Vec<T>,
         c: Vec<(usize, usize)>,
