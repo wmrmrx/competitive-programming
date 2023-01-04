@@ -11,8 +11,8 @@ mod segtree {
     #[derive(Debug)]
     pub struct SegTree<T, const S: bool> {
         size: usize,
-        info: Vec<T>,
-        c: Vec<(usize, usize)>,
+        info: Box<[T]>,
+        c: Box<[(usize, usize)]>,
     }
 
     impl<T: Info, const S: bool> SegTree<T, S> {
@@ -80,8 +80,8 @@ mod segtree {
         pub fn new(size: usize) -> Self {
             let mut res = Self {
                 size,
-                info: vec![T::zero(); 2 * size - 1],
-                c: vec![(0, 0); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
+                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
             res.build(0, 0, size - 1, &mut 0, None);
             res
@@ -91,8 +91,8 @@ mod segtree {
             let size = v.len();
             let mut res = Self {
                 size,
-                info: vec![T::zero(); 2 * size - 1],
-                c: vec![(0, 0); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
+                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
             res.build(0, 0, size - 1, &mut 0, Some(v));
             res

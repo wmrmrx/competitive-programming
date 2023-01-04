@@ -1,7 +1,7 @@
 #[allow(dead_code)]
 mod seglazy {
-    pub trait Info: Clone + std::fmt::Debug {
-        type Basic: Clone + std::fmt::Debug;
+    pub trait Info: Clone {
+        type Basic: Clone;
         fn new(b: &Self::Basic) -> Self;
         fn zero() -> Self;
         fn merge(&self, rhs: &Self) -> Self;
@@ -12,8 +12,8 @@ mod seglazy {
     #[derive(Debug)]
     pub struct SegLazy<T> {
         size: usize,
-        info: Vec<T>,
-        c: Vec<(usize, usize)>,
+        info: Box<[T]>,
+        c: Box<[(usize, usize)]>,
     }
 
     impl<T: Info> SegLazy<T> {
@@ -99,8 +99,8 @@ mod seglazy {
         pub fn new(size: usize) -> Self {
             let mut res = Self {
                 size,
-                info: vec![T::zero(); 2 * size - 1],
-                c: vec![(0, 0); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
+                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
             res.build(0, 0, size - 1, &mut 0, None);
             res
@@ -110,8 +110,8 @@ mod seglazy {
             let size = v.len();
             let mut res = Self {
                 size,
-                info: vec![T::zero(); 2 * size - 1],
-                c: vec![(0, 0); 2 * size - 1],
+                info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
+                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
             res.build(0, 0, size - 1, &mut 0, Some(v));
             res

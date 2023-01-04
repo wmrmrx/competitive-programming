@@ -2,7 +2,7 @@
 mod fenwick {
     #[derive(Clone, Debug)]
     pub struct Fenwick<T> {
-        bit: Vec<T>,
+        bit: Box<[T]>,
     }
 
     impl<T> Fenwick<T>
@@ -11,7 +11,7 @@ mod fenwick {
     {
         pub fn new(size: usize) -> Self {
             Self {
-                bit: vec![T::default(); size],
+                bit: vec![T::default(); size].into_boxed_slice(),
             }
         }
 
