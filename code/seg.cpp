@@ -1,8 +1,9 @@
 struct Data {
+	using B = int;
 	int x;
 
 	Data(): x(numeric_limits<int>::max()) {}
-	Data(int _x): x(_x) {}
+	Data(B _x): x(_x) {}
 
 	friend Data operator+(const Data lhs, const Data rhs) {
 		Data res;
@@ -11,7 +12,7 @@ struct Data {
 	}
 };
 
-template <typename D, typename U=int, bool SUBSTITUTION=false> 
+template <typename D, bool SUBSTITUTION=false, typename U=typename D::B> 
 class Seg {
 private: 
 	struct node {
