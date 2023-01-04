@@ -9,13 +9,13 @@ mod segtree {
     }
 
     #[derive(Debug)]
-    pub struct SegTree<T> {
+    pub struct SegTree<T, const S: bool> {
         size: usize,
         info: Vec<T>,
         c: Vec<(usize, usize)>,
     }
 
-    impl<T: Info> SegTree<T> {
+    impl<T: Info, const S: bool> SegTree<T, S> {
         fn build(
             &mut self,
             cur: usize,
@@ -58,7 +58,11 @@ mod segtree {
 
         fn pupdate(&mut self, cur: usize, cl: usize, cr: usize, qp: usize, qv: &T::Basic) {
             if cl == cr {
-                self.info[cur].apply(qv);
+                if S {
+                    self.info[cur] = T::new(qv);
+                } else {
+                    self.info[cur].apply(qv);
+                }
             } else {
                 let m = (cl + cr) / 2;
                 let (x, y) = self.c[cur];
@@ -72,7 +76,7 @@ mod segtree {
         }
     }
 
-    impl<T: Info> SegTree<T> {
+    impl<T: Info, const S: bool> SegTree<T, S> {
         pub fn new(size: usize) -> Self {
             let mut res = Self {
                 size,
@@ -123,4 +127,4 @@ mod segtree {
     }
 }
 use segtree::{Min, SegTree};
-type SegMin = SegTree<Min>;
+type SegMin = SegTree<Min, false>;
