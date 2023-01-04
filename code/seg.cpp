@@ -69,10 +69,12 @@ public:
 	}
 
 	D query(const int ql, const int qr) const {
+		assert(0 <= ql && ql <= qr && qr < sz);
 		return query(arena[0], 0, sz-1, ql, qr);
 	}
 
 	void update(const int pos, const U& val) {
+		assert(0 <= pos && pos < sz);
 		update(arena[0], 0, sz-1, pos, val);
 	}
 };
