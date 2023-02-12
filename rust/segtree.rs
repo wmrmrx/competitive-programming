@@ -122,9 +122,94 @@ mod segtree {
             Min(self.0.min(rhs.0))
         }
         fn apply(&mut self, b: &Self::Basic) {
-            self.0 += *b;
+            self.0 = self.0.min(*b);
+        }
+    }
+
+    pub type SegMin = SegTree<Min, false>;
+
+    type Number = usize;
+    #[derive(Clone, Debug)]
+    pub struct MinMax {
+        min: Number,
+        max: Number,
+    }
+
+    impl Info for MinMax {
+        type Basic = Number;
+        fn new(b: &Self::Basic) -> Self {
+            MinMax { min: *b, max: *b }
+        }
+        fn zero() -> Self {
+            MinMax {
+                min: Number::MAX,
+                max: Number::MIN,
+            }
+        }
+        fn merge(&self, rhs: &Self) -> Self {
+            MinMax {
+                min: self.min.min(rhs.min),
+                max: self.max.max(rhs.max),
+            }
+        }
+        fn apply(&mut self, b: &Self::Basic) {
+            self.min = self.min.min(*b);
+            self.max = self.max.max(*b);
+        }
+    }
+
+    impl SegM {
+        fn pbb<const LAST: bool>(
+            &self,
+            cur: usize,
+            cl: usize,
+            cr: usize,
+            ql: usize,
+            qr: usize,
+            ok: &impl Fn(&MinMax) -> bool,
+        ) -> Option<usize> {
+            if qr < cl || cr < ql || (!ok(&self.info[cur])) {
+                return None;
+            }
+            if cl == cr {
+                return Some(cl);
+            }
+            let (x, y) = self.c[cur];
+            let m = (cl + cr) / 2;
+            let res = if LAST {
+                self.pbb::<LAST>(y, m + 1, cr, ql, qr, ok)
+            } else {
+                self.pbb::<LAST>(x, cl, m, ql, qr, ok)
+            };
+            if res.is_some() {
+                res
+            } else {
+                if LAST {
+                    self.pbb::<LAST>(x, cl, m, ql, qr, ok)
+                } else {
+                    self.pbb::<LAST>(y, m + 1, cr, ql, qr, ok)
+                }
+            }
+        }
+    }
+
+    impl SegM {
+        pub fn first_smaller(&self, l: usize, r: usize, x: Number) -> Option<usize> {
+            self.pbb::<false>(0, 0, self.size - 1, l, r, &(|info| info.min < x))
+        }
+
+        pub fn first_bigger(&self, l: usize, r: usize, x: Number) -> Option<usize> {
+            self.pbb::<false>(0, 0, self.size - 1, l, r, &(|info| info.max > x))
+        }
+
+        pub fn last_smaller(&self, l: usize, r: usize, x: Number) -> Option<usize> {
+            self.pbb::<true>(0, 0, self.size - 1, l, r, &(|info| info.min < x))
+        }
+
+        pub fn last_bigger(&self, l: usize, r: usize, x: Number) -> Option<usize> {
+            self.pbb::<true>(0, 0, self.size - 1, l, r, &(|info| info.max > x))
         }
     }
 }
-use segtree::{Min, SegTree};
-type SegMin = SegTree<Min, false>;
+use segtree::SegM;
+use segtree::SegMin;
