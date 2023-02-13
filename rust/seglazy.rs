@@ -13,42 +13,31 @@ mod seglazy {
     pub struct SegLazy<T> {
         size: usize,
         info: Box<[T]>,
-        c: Box<[(usize, usize)]>,
     }
 
     impl<T: Info> SegLazy<T> {
-        fn build(
-            &mut self,
-            cur: usize,
-            cl: usize,
-            cr: usize,
-            cnt: &mut usize,
-            v: Option<&[T::Basic]>,
-        ) {
+        fn childs(&self, cur: usize, cl: usize, cr: usize) -> (usize, usize) {
+            let m = (cl + cr) / 2;
+            (cur + 1, cur + 2 * (m - cl + 1))
+        }
+
+        fn build(&mut self, cur: usize, cl: usize, cr: usize, v: &[T::Basic]) {
             if cl == cr {
-                self.info[cur] = if let Some(v) = v {
-                    T::new(&v[cl])
-                } else {
-                    T::zero()
-                }
+                self.info[cur] = T::new(&v[cl]);
             } else {
                 let m = (cl + cr) / 2;
-                *cnt += 1;
-                self.c[cur].0 = *cnt;
-                self.build(*cnt, cl, m, cnt, v);
-                *cnt += 1;
-                self.c[cur].1 = *cnt;
-                self.build(*cnt, m + 1, cr, cnt, v);
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
+                self.build(x, cl, m, v);
+                self.build(y, m + 1, cr, v);
                 self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
 
-        fn propagate(&mut self, cur: usize) {
-            let (x, y) = self.c[cur];
-            if x == 0 && y == 0 {
+        fn propagate(&mut self, cur: usize, cl: usize, cr: usize) {
+            if cl == cr {
                 self.info[cur].propagate(None);
             } else {
+                let (x, y) = self.childs(cur, cl, cr);
                 let (s1, s2) = self.info.split_at_mut(y);
                 let (s0, s1) = s1.split_at_mut(x);
                 s0[cur].propagate(Some((&mut s1[0], &mut s2[0])));
@@ -56,14 +45,14 @@ mod seglazy {
         }
 
         fn pquery(&mut self, cur: usize, cl: usize, cr: usize, ql: usize, qr: usize) -> T {
-            self.propagate(cur);
+            self.propagate(cur, cl, cr);
             if qr < cl || cr < ql {
                 T::zero()
             } else if ql <= cl && cr <= qr {
                 self.info[cur].clone()
             } else {
                 let m = (cl + cr) / 2;
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
                 self.pquery(x, cl, m, ql, qr)
                     .merge(&self.pquery(y, m + 1, cr, ql, qr))
             }
@@ -78,16 +67,16 @@ mod seglazy {
             qr: usize,
             qv: &T::Basic,
         ) {
-            self.propagate(cur);
+            self.propagate(cur, cl, cr);
             if qr < cl || cr < ql {
                 return;
             }
             if ql <= cl && cr <= qr {
                 self.info[cur].put_tag(qv);
-                self.propagate(cur);
+                self.propagate(cur, cl, cr);
             } else {
                 let m = (cl + cr) / 2;
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
                 self.pupdate(x, cl, m, ql, qr, qv);
                 self.pupdate(y, m + 1, cr, ql, qr, qv);
                 self.info[cur] = self.info[x].merge(&self.info[y]);
@@ -97,13 +86,10 @@ mod seglazy {
 
     impl<T: Info> SegLazy<T> {
         pub fn new(size: usize) -> Self {
-            let mut res = Self {
+            Self {
                 size,
                 info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
-                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
-            };
-            res.build(0, 0, size - 1, &mut 0, None);
-            res
+            }
         }
 
         pub fn from(v: &[T::Basic]) -> Self {
@@ -111,9 +97,8 @@ mod seglazy {
             let mut res = Self {
                 size,
                 info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
-                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
-            res.build(0, 0, size - 1, &mut 0, Some(v));
+            res.build(0, 0, size - 1, v);
             res
         }
 
