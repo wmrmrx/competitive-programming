@@ -12,33 +12,22 @@ mod segtree {
     pub struct SegTree<T, const S: bool> {
         size: usize,
         info: Box<[T]>,
-        c: Box<[(usize, usize)]>,
     }
 
     impl<T: Info, const S: bool> SegTree<T, S> {
-        fn build(
-            &mut self,
-            cur: usize,
-            cl: usize,
-            cr: usize,
-            cnt: &mut usize,
-            v: Option<&[T::Basic]>,
-        ) {
+        fn childs(&self, cur: usize, cl: usize, cr: usize) -> (usize, usize) {
+            let m = (cl + cr) / 2;
+            (cur + 1, cur + (m - cl + 1))
+        }
+
+        fn build(&mut self, cur: usize, cl: usize, cr: usize, v: &[T::Basic]) {
             if cl == cr {
-                self.info[cur] = if let Some(v) = v {
-                    T::new(&v[cl])
-                } else {
-                    T::zero()
-                }
+                self.info[cur] = T::new(&v[cl]);
             } else {
                 let m = (cl + cr) / 2;
-                *cnt += 1;
-                self.c[cur].0 = *cnt;
-                self.build(*cnt, cl, m, cnt, v);
-                *cnt += 1;
-                self.c[cur].1 = *cnt;
-                self.build(*cnt, m + 1, cr, cnt, v);
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
+                self.build(x, cl, m, v);
+                self.build(y, m + 1, cr, v);
                 self.info[cur] = self.info[x].merge(&self.info[y]);
             }
         }
@@ -50,7 +39,7 @@ mod segtree {
                 self.info[cur].clone()
             } else {
                 let m = (cl + cr) / 2;
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
                 self.pquery(x, cl, m, ql, qr)
                     .merge(&self.pquery(y, m + 1, cr, ql, qr))
             }
@@ -65,7 +54,7 @@ mod segtree {
                 }
             } else {
                 let m = (cl + cr) / 2;
-                let (x, y) = self.c[cur];
+                let (x, y) = self.childs(cur, cl, cr);
                 if qp <= m {
                     self.pupdate(x, cl, m, qp, qv);
                 } else {
@@ -78,13 +67,10 @@ mod segtree {
 
     impl<T: Info, const S: bool> SegTree<T, S> {
         pub fn new(size: usize) -> Self {
-            let mut res = Self {
+            Self {
                 size,
                 info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
-                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
-            };
-            res.build(0, 0, size - 1, &mut 0, None);
-            res
+            }
         }
 
         pub fn from(v: &[T::Basic]) -> Self {
@@ -92,9 +78,8 @@ mod segtree {
             let mut res = Self {
                 size,
                 info: vec![T::zero(); 2 * size - 1].into_boxed_slice(),
-                c: vec![(0, 0); 2 * size - 1].into_boxed_slice(),
             };
-            res.build(0, 0, size - 1, &mut 0, Some(v));
+            res.build(0, 0, size - 1, v);
             res
         }
 
@@ -135,6 +120,8 @@ mod segtree {
         max: Number,
     }
 
+    pub type SegM = SegTree<MinMax, false>;
+
     impl Info for MinMax {
         type Basic = Number;
         fn new(b: &Self::Basic) -> Self {
@@ -170,11 +157,10 @@ mod segtree {
         ) -> Option<usize> {
             if qr < cl || cr < ql || (!ok(&self.info[cur])) {
                 return None;
-            }
-            if cl == cr {
+            } else if cl == cr {
                 return Some(cl);
             }
-            let (x, y) = self.c[cur];
+            let (x, y) = self.childs(cur, cl, cr);
             let m = (cl + cr) / 2;
             let res = if LAST {
                 self.pbb::<LAST>(y, m + 1, cr, ql, qr, ok)
@@ -183,12 +169,10 @@ mod segtree {
             };
             if res.is_some() {
                 res
+            } else if LAST {
+                self.pbb::<LAST>(x, cl, m, ql, qr, ok)
             } else {
-                if LAST {
-                    self.pbb::<LAST>(x, cl, m, ql, qr, ok)
-                } else {
-                    self.pbb::<LAST>(y, m + 1, cr, ql, qr, ok)
-                }
+                self.pbb::<LAST>(y, m + 1, cr, ql, qr, ok)
             }
         }
     }
@@ -211,5 +195,4 @@ mod segtree {
         }
     }
 }
-use segtree::SegM;
-use segtree::SegMin;
+use segtree::{SegM, SegMin};
