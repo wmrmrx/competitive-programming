@@ -17,7 +17,7 @@ mod segtree {
     impl<T: Info, const S: bool> SegTree<T, S> {
         fn childs(&self, cur: usize, cl: usize, cr: usize) -> (usize, usize) {
             let m = (cl + cr) / 2;
-            (cur + 1, cur + (m - cl + 1))
+            (cur + 1, cur + 2*(m - cl + 1))
         }
 
         fn build(&mut self, cur: usize, cl: usize, cr: usize, v: &[T::Basic]) {
