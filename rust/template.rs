@@ -2,6 +2,7 @@
 // BEGIN DEFAULT CODE //
 ////////////////////////
 
+use std::fmt::Debug;
 #[allow(dead_code)]
 mod util {
     use std::cell::UnsafeCell;
@@ -41,7 +42,7 @@ mod util {
             }
         }
 
-        pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
+        pub fn read<T: std::str::FromStr<Err = impl Debug>>(&mut self) -> T {
             self.next().unwrap().parse::<T>().unwrap()
         }
         
@@ -53,7 +54,7 @@ mod util {
             self.read::<i64>()
         }
 
-        pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
+        pub fn read_vec<T: std::str::FromStr<Err = impl Debug>>(
             &mut self,
             size: usize,
         ) -> Vec<T> {
@@ -68,7 +69,7 @@ mod util {
             self.read_vec::<i64>(size)
         }
 
-        pub fn read_arr<T: std::str::FromStr<Err = impl std::fmt::Debug>, const N: usize>(
+        pub fn read_arr<T: std::str::FromStr<Err = impl Debug>, const N: usize>(
             &mut self,
         ) -> [T; N] {
             std::array::from_fn(|_| self.read())
