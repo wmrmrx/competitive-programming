@@ -1,13 +1,7 @@
-////////////////////////
-// BEGIN DEFAULT CODE //
-////////////////////////
-
-use std::fmt::Debug;
 #[allow(dead_code)]
 mod util {
     use std::cell::UnsafeCell;
     use std::io::{BufReader, BufWriter, Read, Write};
-    use Debug;
 
     pub struct IO<'a, R: Read, W: Write> {
         reader: BufReader<R>,
@@ -35,7 +29,7 @@ mod util {
         }
     }
 
-    impl<R: Read, W: Write> IO<'_, R, W,> {
+    impl<R: Read, W: Write> IO<'_, R, W> {
         pub fn new(reader: R, writer: W) -> Self {
             Self {
                 reader: BufReader::new(reader),
@@ -45,7 +39,7 @@ mod util {
             }
         }
 
-        pub fn read<T: std::str::FromStr<Err = impl Debug>>(&mut self) -> T {
+        pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
             self.next().unwrap().parse::<T>().unwrap()
         }
 
@@ -57,7 +51,10 @@ mod util {
             self.read::<i64>()
         }
 
-        pub fn read_vec<T: std::str::FromStr<Err = impl Debug>>(&mut self, size: usize) -> Vec<T> {
+        pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
+            &mut self,
+            size: usize,
+        ) -> Vec<T> {
             (0..size).map(|_| self.read()).collect()
         }
 
@@ -69,7 +66,7 @@ mod util {
             self.read_vec::<i64>(size)
         }
 
-        pub fn read_arr<T: std::str::FromStr<Err = impl Debug>, const N: usize>(
+        pub fn read_arr<T: std::str::FromStr<Err = impl std::fmt::Debug>, const N: usize>(
             &mut self,
         ) -> [T; N] {
             std::array::from_fn(|_| self.read())
@@ -104,6 +101,62 @@ mod util {
     }
 }
 
+#[allow(dead_code)]
+mod rec_function {
+    //! Copied from https://github.com/EgorKulikov/rust_algo/blob/master/algo_lib/src/misc/recursive_function.rs
+    use std::marker::PhantomData;
+    macro_rules! recursive_function {
+        ($name: ident, $trait: ident, ($($type: ident $arg: ident,)*)) => {
+            pub trait $trait<$($type, )*Output> {
+                fn call(&mut self, $($arg: $type,)*) -> Output;
+            }
+
+            pub struct $name<F, $($type, )*Output>
+            where
+                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
+            {
+                f: F,
+                $($arg: PhantomData<$type>,
+                )*
+                phantom_output: PhantomData<Output>,
+            }
+
+            impl<F, $($type, )*Output> $name<F, $($type, )*Output>
+            where
+                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
+            {
+                pub fn new(f: F) -> Self {
+                    Self {
+                        f,
+                        $($arg: Default::default(),
+                        )*
+                        phantom_output: Default::default(),
+                    }
+                }
+            }
+
+            impl<F, $($type, )*Output> $trait<$($type, )*Output> for $name<F, $($type, )*Output>
+            where
+                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
+            {
+                fn call(&mut self, $($arg: $type,)*) -> Output {
+                    let const_ptr = &self.f as *const F;
+                    let mut_ptr = const_ptr as *mut F;
+                    unsafe { (&mut *mut_ptr)(self, $($arg, )*) }
+                }
+            }
+        }
+    }
+    recursive_function!(F0, Callable0, ());
+    recursive_function!(F1, Callable1, (A1 a1,));
+    recursive_function!(F2, Callable2, (A1 a1, A2 a2,));
+    recursive_function!(F3, Callable3, (A1 a1, A2 a2, A3 a3,));
+    recursive_function!(F4, Callable4, (A1 a1, A2 a2, A3 a3, A4 a4,));
+    recursive_function!(F5, Callable5, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,));
+    recursive_function!(F6, Callable6, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,));
+}
+#[allow(unused_imports)]
+use rec_function::*;
 #[allow(unused_imports)]
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque},
@@ -113,9 +166,9 @@ use util::IO;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
-//////////////////////
-// END DEFAULT CODE //
-//////////////////////
+///////////////////////
+// END TEMPLATE CODE //
+///////////////////////
 
 #[derive(Debug)]
 struct Solver {}
