@@ -191,7 +191,7 @@ fn main() {
     let mut solver = Solver::new();
 
     let t: u64 = 1;
-    //let t: u64 = sc.read();
+    //let t: u64 = io.read();
 
     for case in 1..=t {
         solver.solve(&mut io);
