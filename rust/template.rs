@@ -35,7 +35,7 @@ mod util {
         }
     }
 
-    impl<R: Read, W: Write> IO<'_, R, W> {
+    impl<R: Read, W: Write> IO<'_, R, W,> {
         pub fn new(reader: R, writer: W) -> Self {
             Self {
                 reader: BufReader::new(reader),
@@ -82,14 +82,24 @@ mod util {
         pub fn readi_arr<const N: usize>(&mut self) -> [i64; N] {
             self.read_arr::<i64, N>()
         }
-    }
 
-    impl<R: Read, W: Write> Write for IO<'_, R, W> {
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            self.writer.write(buf)
+        pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+            let _ = write!(self.writer, "{t}");
+            self
         }
-        fn flush(&mut self) -> std::io::Result<()> {
-            self.writer.flush()
+
+        pub fn putln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+            let _ = writeln!(self.writer, "{t}");
+            self
+        }
+
+        pub fn ws(&mut self) -> &mut Self {
+            let _ = write!(self.writer, " ");
+            self
+        }
+
+        pub fn flush(&mut self) {
+            let _ = self.writer.flush();
         }
     }
 }
@@ -121,7 +131,7 @@ impl Solver {
 }
 
 impl Solver {
-    fn solve<'a, R: Read, W: Write>(&mut self, io: &mut IO<'a, R, W>) {
+    fn solve<R: Read, W: Write>(&mut self, io: &mut IO<'_, R, W>) {
     }
 }
 
