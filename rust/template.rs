@@ -7,14 +7,16 @@ use std::fmt::Debug;
 mod util {
     use std::cell::UnsafeCell;
     use std::io::{BufReader, BufWriter, Read, Write};
+    use Debug;
 
-    pub struct Scanner<'a, R: Read> {
+    pub struct IO<'a, R: Read, W: Write> {
         reader: BufReader<R>,
+        writer: BufWriter<W>,
         buffer: UnsafeCell<String>,
         tokens: std::str::SplitWhitespace<'a>,
     }
 
-    impl<'a, R: Read> Iterator for Scanner<'a, R> {
+    impl<'a, R: Read, W: Write> Iterator for IO<'a, R, W> {
         type Item = &'a str;
         fn next(&mut self) -> Option<Self::Item> {
             use std::io::BufRead;
@@ -33,10 +35,11 @@ mod util {
         }
     }
 
-    impl<R: Read> Scanner<'_, R> {
-        pub fn new(reader: R) -> Self {
+    impl<R: Read, W: Write> IO<'_, R, W> {
+        pub fn new(reader: R, writer: W) -> Self {
             Self {
                 reader: BufReader::new(reader),
+                writer: BufWriter::new(writer),
                 buffer: UnsafeCell::new(String::new()),
                 tokens: "".split_whitespace(),
             }
@@ -45,7 +48,7 @@ mod util {
         pub fn read<T: std::str::FromStr<Err = impl Debug>>(&mut self) -> T {
             self.next().unwrap().parse::<T>().unwrap()
         }
-        
+
         pub fn readu(&mut self) -> usize {
             self.read::<usize>()
         }
@@ -54,10 +57,7 @@ mod util {
             self.read::<i64>()
         }
 
-        pub fn read_vec<T: std::str::FromStr<Err = impl Debug>>(
-            &mut self,
-            size: usize,
-        ) -> Vec<T> {
+        pub fn read_vec<T: std::str::FromStr<Err = impl Debug>>(&mut self, size: usize) -> Vec<T> {
             (0..size).map(|_| self.read()).collect()
         }
 
@@ -84,39 +84,12 @@ mod util {
         }
     }
 
-    pub struct Writer<W: Write> {
-        writer: BufWriter<W>,
-    }
-
-    impl<W: Write> Writer<W> {
-        pub fn new(writer: W) -> Self {
-            Self {
-                writer: BufWriter::new(writer),
-            }
+    impl<R: Read, W: Write> Write for IO<'_, R, W> {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.writer.write(buf)
         }
-
-        pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
-            let _ = write!(self.writer, "{t}");
-            self
-        }
-
-        pub fn putln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
-            let _ = writeln!(self.writer, "{t}");
-            self
-        }
-
-        pub fn ws(&mut self) -> &mut Self {
-            let _ = write!(self.writer, " ");
-            self
-        }
-
-        pub fn endl(&mut self) {
-            let _ = writeln!(self.writer);
-            self.flush()
-        }
-
-        pub fn flush(&mut self) {
-            let _ = self.writer.flush();
+        fn flush(&mut self) -> std::io::Result<()> {
+            self.writer.flush()
         }
     }
 }
@@ -124,13 +97,9 @@ mod util {
 #[allow(unused_imports)]
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque},
-    format as fmt,
     io::{Read, Write},
 };
-#[allow(unused_imports)]
-use util::{Scanner, Writer};
-type In<'a, R> = Scanner<'a, R>;
-type Out<W> = Writer<W>;
+use util::IO;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
@@ -152,20 +121,19 @@ impl Solver {
 }
 
 impl Solver {
-    fn solve<R: Read, W: Write>(&mut self, sc: &mut In<R>, bf: &mut Out<W>) {
+    fn solve<'a, R: Read, W: Write>(&mut self, io: &mut IO<'a, R, W>) {
     }
 }
 
 fn main() {
-    let mut sc = Scanner::new(std::io::stdin().lock());
-    let mut bf = Writer::new(std::io::stdout().lock());
+    let mut io = IO::new(std::io::stdin().lock(), std::io::stdout().lock());
     let mut solver = Solver::new();
 
     let t: u64 = 1;
     //let t: u64 = sc.read();
 
     for case in 1..=t {
-        solver.solve(&mut sc, &mut bf);
+        solver.solve(&mut io);
         if case != t {
             solver.clean();
         }
