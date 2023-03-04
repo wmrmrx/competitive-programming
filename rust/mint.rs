@@ -71,7 +71,13 @@ mod mint {
     }
 
     impl<const M: u32> Mint<M> {
-        pub fn new(val: i64) -> Self {
+        pub fn new<T>(val: T) -> Self
+        where
+            i64: std::convert::TryFrom<T>,
+            <i64 as std::convert::TryFrom<T>>::Error: std::fmt::Debug,
+        {
+            use std::convert::TryFrom;
+            let val = i64::try_from(val).unwrap();
             if val >= 0 {
                 Mint((val % M as i64) as u32)
             } else {
