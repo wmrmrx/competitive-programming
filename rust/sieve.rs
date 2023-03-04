@@ -10,13 +10,13 @@ mod sieve {
         pub fn new() -> Self {
             let mut res = Self {
                 primes: Vec::new(),
-                sieve: vec![0; N + 1],
+                sieve: vec![0; N],
             };
-            for i in 2..=N {
+            for i in 2..N {
                 if res.sieve[i] == 0 {
                     res.sieve[i] = i;
                     res.primes.push(i);
-                    for j in (i * i..=N).step_by(i) {
+                    for j in (i * i..N).step_by(i) {
                         if res.sieve[j] == 0 {
                             res.sieve[j] = i;
                         }
@@ -47,7 +47,7 @@ mod sieve {
         /// Returns tuple (prime, exponent)
         pub fn factorization(&self, mut x: usize) -> Vec<(usize, usize)> {
             let mut res = Vec::new();
-            if x <= N {
+            if x < N {
                 while x > 1 {
                     let p = self.sieve[x];
                     let mut count = 0;
