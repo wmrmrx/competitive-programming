@@ -34,12 +34,12 @@ private:
 		data[nid] = data[nid + 1] + data[nid + 2*(m - l + 1)];
 	}
 public:
-	SegPurq(const vector<T>& v): size(v.size()) {
+	SegPURQ(const vector<T>& v): size(v.size()) {
 		data.resize(2*size - 1);
 		build(0, 0, size-1, v);
 	}
 
-	SegPurq(int _size): size(_size) {
+	SegPURQ(int _size): size(_size) {
 		data.resize(2*size - 1);
 	}
 
