@@ -1,26 +1,12 @@
-struct Data {
-	using T = int;
-	int x;
-
-	Data(): x(numeric_limits<T>::max()) {}
-	Data(T _x): x(_x) {}
-
-	friend Data operator+(const Data lhs, const Data rhs) {
-		Data res;
-		res.x = min(lhs.x, rhs.x);
-		return res;
-	}
-};
-
 template <typename D, typename T=typename D::T> 
-class Seg {
+class SegPURQ {
 private: 
-	int sz;
+	int size;
 	vector<D> data;
 
-	void build(int nid, const int l, const int r, const T* v) {
+	void build(int nid, const int l, const int r, const vector<T>& v) {
 		if(l == r) {
-			if(v) data[nid] = D(v[l]);
+			data[nid] = D(v[l]);
 			return;
 		}
 		const int m = (l + r)/2;
@@ -48,23 +34,36 @@ private:
 		data[nid] = data[nid + 1] + data[nid + 2*(m - l + 1)];
 	}
 public:
-	Seg(const vector<T>& v): sz(v.size()) {
-		data.resize(2*sz - 1);
-		build(0, 0, sz-1, v.data());
+	SegPurq(const vector<T>& v): size(v.size()) {
+		data.resize(2*size - 1);
+		build(0, 0, size-1, v);
 	}
 
-	Seg(int _sz): sz(_sz) {
-		data.resize(2*sz - 1);
-		build(0, 0, sz-1, nullptr);
+	SegPurq(int _size): size(_size) {
+		data.resize(2*size - 1);
 	}
 
 	D query(const int ql, const int qr) const {
-		assert(0 <= ql && ql <= qr && qr < sz);
-		return query(0, 0, sz-1, ql, qr);
+		assert(0 <= ql && ql <= qr && qr < size);
+		return query(0, 0, size-1, ql, qr);
 	}
 
 	void update(const int pos, const T& val) {
-		assert(0 <= pos && pos < sz);
-		update(0, 0, sz-1, pos, val);
+		assert(0 <= pos && pos < size);
+		update(0, 0, size-1, pos, val);
+	}
+};
+
+struct Data {
+	using T = int;
+	int x;
+
+	Data(): x(numeric_limits<T>::max()) {}
+	Data(T _x): x(_x) {}
+
+	friend Data operator+(const Data lhs, const Data rhs) {
+		Data res;
+		res.x = min(lhs.x, rhs.x);
+		return res;
 	}
 };
