@@ -127,11 +127,16 @@ struct polygon {
 		for(int i = 0, j = 1; i < n; i++) {
 			point v = vp[nxt(i)] - vp[i];
 			while((v ^ (vp[nxt(j)] - vp[j])) > 0) j = nxt(j);
+			// do something with vp[i] and vp[j]
 			ans = max(ans, dist2(vp[i], vp[j])); // Example with polygon diameter squared
 		}
 		return ans;
 	}
 
+	// returns the maximal point using comparator cmp
+	// example: 
+	// 	extreme([&](point p, point q) {return p * v > q * v;});
+	// 	returns point with maximal dot product with v
 	int extreme(const function<bool(point, point)> &cmp) {
 		auto is_extreme = [&](int i, bool& cur_dir) -> bool {
 			cur_dir = cmp(vp[nxt(i)], vp[i]);
@@ -163,16 +168,13 @@ struct polygon {
 		return {extreme(left_tangent), extreme(right_tangent)};
 	}
 
-	int maximize(point v) { // O(log n) for convex polygon in ccw orientation
-		// Finds the extreme point in the direction of the vector
-		return extreme([&](point p, point q) {return p * v > q * v;});
-	}
-
 	void normalize() { // p[0] becomes the lowest leftmost point 
 		rotate(vp.begin(), min_element(all(vp)), vp.end());
 	}
 
 	polygon operator+(polygon& rhs) { // Minkowsky sum
+		normalize();
+		rhs.normalize();
 		vector<point> sum;
 		for(int i = 0, j = 0, dir; i < n || j < rhs.n; i += dir >= 0, j += dir <= 0) {
 			sum.push_back(vp[i % n] + rhs.vp[j % rhs.n]);
