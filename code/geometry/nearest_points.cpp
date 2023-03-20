@@ -1,10 +1,15 @@
-i64 nearest_points(vector<point> v) {
-	using lim = numeric_limits<i64>;
-	i64 res = lim::max(), sq = sqrt((double)res+1);
+// Nearest Points
+// Returns minimum distance SQUARED between two points
+// Complexity: O(NlogN)
+
+template <typename C_T>
+C_T nearest_points(vector<point> v) {
+	using lim = numeric_limits<C_T>;
+	C_T res = lim::max(), sq = sqrt((double)res);
 	sort(all(v));
 	for(int i=1;i<v.size();i++) if(v[i] == v[i-1]) return 0;
 	auto by_y = [](const point& a, const point& b) {
-		using tup = tuple<i64, i64>;
+		using tup = tuple<C_T, C_T>;
 		return tup{a.y, a.x} < tup{b.y, b.x};
 	};
 	queue<point> active;
@@ -16,10 +21,10 @@ i64 nearest_points(vector<point> v) {
 		}
 		auto it = pts.lower_bound({lim::min(), p.y-sq});
 		while(it != pts.end() && it->y <= p.y + sq) {
-			int d = dist2(p, *it);
+			C_T d = dist2(p, *it);
 			if(d < res) {
 				res = d;
-				sq = sqrt((double)res+1);
+				sq = sqrt((double)res);
 			}
 			it++;
 		}
