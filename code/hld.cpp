@@ -1,10 +1,10 @@
 template<typename SEG, bool EDGE> struct HLD {
 	int n;
-	vector<int> anc, dep, tin, tout, ini, id;
+	vector<int> anc, dep, tin, tout, ini, chain;
 	SEG seg;
 
 	HLD(int _n, vector<int> g[]): 
-		n(_n), anc(n), dep(n+1), tin(n), tout(n), ini(n), id(n), seg(n) {
+		n(_n), anc(n), dep(n+1), tin(n), tout(n), ini(n), chain(n), seg(n) {
 		vector<int> sub(n, 1);
 		function<void(int, int)> pre = [&](int u, int p) {
 			for(int v: g[u]) if(v != p) {
@@ -16,14 +16,14 @@ template<typename SEG, bool EDGE> struct HLD {
 				swap(g[u][i], g[u][0]);
 		};
 		pre(0, 0);
-		int t = -1, tid = 0;
+		int t = -1, cnt = 0;
 		function<void(int,int)> dfs = [&](int u, int p) {
 			tin[u] = ++t;
 			bool fst = true;
 			for(int v: g[u]) if(v != p) {
 				anc[v] = fst ? anc[u] : u;
-				if(fst) ini[v] = ini[u], id[v] = id[u];
-				else ini[v] = t, id[v] = ++tid;
+				if(fst) ini[v] = ini[u], chain[v] = chain[u];
+				else ini[v] = t, chain[v] = ++cnt;
 				dfs(v, u);
 				fst = false;
 			}
@@ -41,7 +41,7 @@ template<typename SEG, bool EDGE> struct HLD {
 
 	template<typename RES> RES query(int u, int v) {
 		RES res = RES();
-		while(id[u] != id[v]) {
+		while(chain[u] != chain[v]) {
 			if(dep[anc[u]] < dep[anc[v]]) swap(u, v);
 			res = res + seg.query(ini[u], tin[u]);
 			u = anc[u];
