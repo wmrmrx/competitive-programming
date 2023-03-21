@@ -29,7 +29,7 @@ template<typename SEG, bool EDGE> struct HLD {
 			}
 			tout[u] = t;
 		};
-		dep[n] = n;
+		dep[n] = -1;
 		anc[0] = n;
 		dfs(0, 0);
 	}
