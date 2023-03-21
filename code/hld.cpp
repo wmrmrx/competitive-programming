@@ -34,6 +34,7 @@ template<typename SEG, bool EDGE> struct HLD {
 		dfs(0, 0);
 	}
 
+	// If EDGE, the child u of an edge represents it
 	template<typename T> void update(int u, T val) {
 		seg.update(tin[u], val);
 	}
@@ -46,6 +47,7 @@ template<typename SEG, bool EDGE> struct HLD {
 			u = anc[u];
 		}
 		if(tin[u] > tin[v]) swap(u, v);
+		// u is now the LCA of u and v
 		if(tin[u] + EDGE <= tin[v]) 
 			res = res + seg.query(tin[u] + EDGE, tin[v]);
 		return res;
