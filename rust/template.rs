@@ -99,6 +99,18 @@ mod util {
             let _ = self.writer.flush();
         }
     }
+
+    pub fn mat1<T: Clone>(n1: usize, val: T) -> Box<[T]> {
+        vec![val; n1].into_boxed_slice()
+    }
+
+    pub fn mat2<T: Clone>(n1: usize, n2: usize, val: T) -> Box<[Box<[T]>]> {
+        mat1(n1, mat1(n2, val))
+    }
+
+    pub fn mat3<T: Clone>(n1: usize, n2: usize, n3: usize, val: T) -> Box<[Box<[Box<[T]>]>]> {
+        mat1(n1, mat2(n2, n3, val))
+    }
 }
 
 #[allow(dead_code)]
@@ -161,7 +173,7 @@ use std::{
     io::{Read, Write},
     ops::Bound::*,
 };
-use util::IO;
+use util::*;
 #[allow(dead_code, non_camel_case_types)]
 type u64 = usize;
 
