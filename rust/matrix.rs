@@ -13,6 +13,10 @@ mod matrix {
                 mat: vec![T::default(); lin * col].into_boxed_slice(),
             }
         }
+
+        pub fn swap(&mut self, i1: usize, j1: usize, i2: usize, j2: usize) {
+            self.mat.swap(i1 * self.col + j1, i2 * self.col + j2);
+        }
     }
 
     impl<T: Clone + Default> std::ops::Index<usize> for Matrix<T> {
