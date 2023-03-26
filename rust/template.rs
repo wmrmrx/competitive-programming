@@ -89,7 +89,7 @@ mod util {
             self
         }
 
-        pub fn ln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+        pub fn ln<T: std::fmt::Display>(&mut self) -> &mut Self {
             let _ = writeln!(self.writer);
             self
         }
