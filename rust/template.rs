@@ -10,25 +10,6 @@ mod util {
         tokens: std::str::SplitWhitespace<'a>,
     }
 
-    impl<'a, R: Read, W: Write> Iterator for IO<'a, R, W> {
-        type Item = &'a str;
-        fn next(&mut self) -> Option<Self::Item> {
-            use std::io::BufRead;
-            loop {
-                if let Some(s) = self.tokens.next() {
-                    break Some(s);
-                } else {
-                    unsafe {
-                        self.tokens = "".split_whitespace();
-                        self.buffer.get_mut().clear();
-                        self.reader.read_line(self.buffer.get_mut()).unwrap();
-                        self.tokens = (*self.buffer.get()).split_whitespace();
-                    }
-                }
-            }
-        }
-    }
-
     impl<R: Read, W: Write> IO<'_, R, W> {
         pub fn new(reader: R, writer: W) -> Self {
             Self {
@@ -40,7 +21,21 @@ mod util {
         }
 
         pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
-            self.next().unwrap().parse::<T>().unwrap()
+            use std::io::BufRead;
+            loop {
+                if let Some(s) = self.tokens.next() {
+                    break s;
+                } else {
+                    unsafe {
+                        self.tokens = "".split_whitespace();
+                        self.buffer.get_mut().clear();
+                        self.reader.read_line(self.buffer.get_mut()).unwrap();
+                        self.tokens = (*self.buffer.get()).split_whitespace();
+                    }
+                }
+            }
+            .parse::<T>()
+            .unwrap()
         }
 
         pub fn readu(&mut self) -> usize {
@@ -94,6 +89,11 @@ mod util {
             self
         }
 
+        pub fn ln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+            let _ = writeln!(self.writer);
+            self
+        }
+
         pub fn ws(&mut self) -> &mut Self {
             let _ = write!(self.writer, " ");
             self
@@ -115,11 +115,8 @@ mod util {
     pub fn mat3<T: Clone>(n1: usize, n2: usize, n3: usize, val: T) -> Box<[Box<[Box<[T]>]>]> {
         mat1(n1, mat2(n2, n3, val))
     }
-}
 
-#[allow(dead_code)]
-mod rec_function {
-    //! Copied from https://github.com/EgorKulikov/rust_algo/blob/master/algo_lib/src/misc/recursive_function.rs
+    /// Copied from https://github.com/EgorKulikov/rust_algo/blob/master/algo_lib/src/misc/recursive_function.rs
     use std::marker::PhantomData;
     macro_rules! recursive_function {
         ($name: ident, $trait: ident, ($($type: ident $arg: ident,)*)) => {
@@ -169,8 +166,7 @@ mod rec_function {
     recursive_function!(F5, Callable5, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,));
     recursive_function!(F6, Callable6, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,));
 }
-#[allow(unused_imports)]
-use rec_function::*;
+
 #[allow(unused_imports)]
 use std::{
     collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque},
