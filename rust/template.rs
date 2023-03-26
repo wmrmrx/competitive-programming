@@ -51,6 +51,10 @@ mod util {
             self.read::<i64>()
         }
 
+        pub fn read_str(&mut self) -> String {
+            self.read::<String>()
+        }
+
         pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
             &mut self,
             size: usize,

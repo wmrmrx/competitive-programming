@@ -77,6 +77,27 @@ mod sieve {
             }
             res
         }
+
+        pub fn divisors(&self, x: usize) -> Vec<usize> {
+            let f = self.factorization(x);
+            let mut size = 1;
+            for (_, q) in f.iter().cloned() {
+                size *= q + 1;
+            }
+            let mut res = Vec::with_capacity(size);
+            res.push(1);
+            for (p, q) in f {
+                let size = res.len();
+                let mut pot = 1;
+                for _ in 0..q {
+                    pot *= p;
+                    for i in 0..size {
+                        res.push(res[i] * pot);
+                    }
+                }
+            }
+            res
+        }
     }
 }
 type Sieve = sieve::Sieve<300_000>;
