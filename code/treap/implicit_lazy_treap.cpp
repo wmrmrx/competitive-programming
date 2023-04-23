@@ -1,3 +1,5 @@
+// Implicit Lazy Treap
+
 // All operations are O(log N)
 // If changes need to be made in lazy propagation,
 // See Node::push()
@@ -19,17 +21,14 @@ struct Treap {
 	Treap(int max): root(0) {
 		v.reserve(max);
 	}
-
 	ND* new_ND(T info) {
 		// assert(v.size() != v.capacity());
 		v.emplace_back(info);
 		return &v.back();
 	}
-
 	int getl(ND& nd) {
 		return nd.l ? nd.l->sz : 0;
 	}
-
 	void merge(ND* l, ND* r, ND*& res) {
 		if(!l || !r) {
 			res = l ? l : r;
@@ -45,7 +44,6 @@ struct Treap {
 		}
 		res->pull();
 	}
-
 	// left treap has size pos
 	void split(ND* x, ND*& l, ND*& r, int pos, int ra = 0) {
 		if(!x) {
@@ -65,7 +63,6 @@ struct Treap {
 		}
 		x->pull();
 	}
-
 	// Merges all s and makes them root
 	template <int SZ>
 	void merge(array<ND*, SZ> s) {
@@ -73,7 +70,6 @@ struct Treap {
 		for(ND* nd: s)
 			merge(root, nd, root);
 	}
-
 	// Splits root into SZ EXCLUSIVE intervals
 	// [0..s[0]), [s[0]..s[1]), [s[1]..s[2])... [s[SZ-1]..end)
 	// Example: split<3>({l, r}) gets the exclusive interval [l, r)
@@ -87,18 +83,15 @@ struct Treap {
 		root = 0;
 		return res;
 	}
-
 	void insert(int ind, T info) {
 		auto s = split<2>({ind});
 		merge<3>({s[0], new_ND(info), s[1]});
 	}
-
 	void erase(int ind) {
 		auto s = split<3>({ind, ind+1});
 		merge<2>({s[0], s[2]});
 	}
-
-	T operator[](int ind) {
+	ND& operator[](int ind) {
 		assert(0 <= ind && ind < root->sz);
 		ND* x = root;
 		x->push();
@@ -107,7 +100,7 @@ struct Treap {
 			else x = x->l;
 			x->push();
 		}
-		return x->info;
+		return *x;
 	}
 };
 
@@ -118,9 +111,7 @@ struct Node {
 	int sz;
 	uint64_t h;
 	// more fields here
-
-	Node(T i): info(i), l(0), r(0), sz(1), h(rng()), plus(0) {}
-
+	Node(T i): info(i), l(0), r(0), sz(1), h(rng()) {}
 	void push() {}
 	void pull() {
 		sz = 1;
