@@ -1,114 +1,135 @@
+// All operations are O(log N)
+// If changes need to be made in lazy propagation,
+// See Node::push()
+// To extend behavior of Treap, use inheritance
+//
+// Important functions:
+// Treap::insert(int ind, T info)
+// Treap::erase(int ind)
+// Treap::reverse(int l, int r)
+// Treap::operator[](int ind)
+
 mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
-template <typename T>
+
+template <typename ND, typename T = typename ND::T> 
 struct Treap {
-	struct no {
-		array<no*, 2> c;
-		T dat;
-		int cnt, h;
-
-		// reverse interval
-		bool rev;
-
-		no(T dat=T()): c({0, 0}), dat(dat), cnt(1), h(rng()), rev(0) {}
-
-		// propagate
-		void prop() {
-			if(rev) {
-				swap(c[0], c[1]);
-				for(no* x: c) if(x) x->rev ^= !x->rev;
-				rev = 0;
-			}
-		}
-
-		// refresh
-		no* ref() {
-			cnt = 1;
-			for(no* x: c) if(x) {
-				x->prop();
-				cnt += x->cnt;
-			}
-			return this;
-		}
-
-		// left child size
-		int l() {
-			return c[0] ? c[0]->cnt : 0;
-		}
-	};
-
-	using childs = array<no*, 2>;
-
-	int sz;
-	no *root;
-	unique_ptr<no[]> arena;
-
-	Treap(int mxsz): sz(0), root(0), arena(new no[mxsz]) {}
-
-	no* new_no(T dat) {
-		arena[sz] = no(dat);
-		return &arena[sz++];
+	ND *root;
+	vector<ND> v;
+	// max: maximum number of NDs created
+	Treap(int max): root(0) {
+		v.reserve(max);
 	}
 
-	int cnt(no* x) { return x ? x->cnt : 0; }
+	ND* new_ND(T info) {
+		// assert(v.size() != v.capacity());
+		v.emplace_back(info);
+		return &v.back();
+	}
 
-	void merge(childs c, no*& res) {
-		if(!c[0] || !c[1]) {
-			res = c[0] ? c[0] : c[1];
+	int getl(ND& nd) {
+		return nd.l ? nd.l->sz : 0;
+	}
+
+	void merge(ND* l, ND* r, ND*& res) {
+		if(!l || !r) {
+			res = l ? l : r;
 			return;
 		}
-		for(int i: {0, 1}) c[i]->prop();
-		int i = c[0]->h < c[1]->h;
-		no *l = c[i]->c[!i], *r = c[!i];
-		if(i) swap(l, r);
-		merge({l, r}, c[i]->c[!i]);
-		res = c[i]->ref();
+		l->push(); r->push();
+		if(l->h > r->h) {
+			res = l;
+			merge(l->r, r, l->r);
+		} else {
+			res = r;
+			merge(l, r->l, r->l);
+		}
+		res->pull();
 	}
 
 	// left treap has size pos
-	void split(no* x, int pos, childs& res, int ra = 0) {
+	void split(ND* x, ND*& l, ND*& r, int pos, int ra = 0) {
 		if(!x) {
-			res.fill(0);
+			l = r = 0;
 			return;
 		}
-		x->prop();
-		ra += x->l();
-		int i = pos > ra;
-		split(x->c[i], pos, res, ra+(i?1:-x->l()));
-		x->c[i] = res[!i];
-		res[!i] = x->ref();
-	}
-
-	void insert(T dat, int idx) {
-		childs s;
-		split(root, idx, s);
-		merge({s[0], new_no(dat)}, root);
-		merge({root, s[1]}, root);
-	}
-
-	void erase(int idx) {
-		childs sl, sr;
-		split(root, idx, sl);
-		split(sl[1], 1, sr);
-		merge({sl[0], sr[1]}, root);
-	}
-
-	T get(int idx) {
-		no* x = root;
-		x->prop();
-		for(int ra = x->l(); ra != idx; ra += x->l()) {
-			if(ra < idx) ra++, x = x->c[1];
-			else ra -= x->l(), x = x->c[0];
-			x->prop();
+		x->push();
+		int nra = ra + getl(*x) + 1;
+		if(pos < nra) {
+			split(x->l, l, r, pos, ra);
+			x->l = r;
+			r = x;
+		} else {
+			split(x->r, l, r, pos, nra);
+			x->r = l;
+			l = x;
 		}
-		return x->dat;
+		x->pull();
 	}
 
-	void reverse(int l, int r) {
-		array<no*, 2> sl, sr;
-		split(root, l, sl);
-		split(sl[1], r-l+1, sr);
-		sr[0]->rev = !sr[0]->rev;
-		merge({sl[0], sr[0]}, root);
-		merge({root, sr[1]}, root);
+	// Merges all s and makes them root
+	template <int SZ>
+	void merge(array<ND*, SZ> s) {
+		root = 0;
+		for(ND* nd: s)
+			merge(root, nd, root);
 	}
+
+	// Splits root into SZ EXCLUSIVE intervals
+	// [0..s[0]), [s[0]..s[1]), [s[1]..s[2])... [s[SZ-1]..end)
+	// Example: split<3>({l, r}) gets the exclusive interval [l, r)
+	template <int SZ> 
+	array<ND*, SZ> split(array<int, SZ-1> s) {
+		assert(s.back() <= (root ? root->sz : 0));
+		array<ND*, SZ> res;
+		split(root, res[0], res[1], s[0]);
+		for(int i=1;i<SZ-1;i++)
+			split(res[i], res[i], res[i+1], s[i]-s[i-1]);
+		root = 0;
+		return res;
+	}
+
+	void insert(int ind, T info) {
+		auto s = split<2>({ind});
+		merge<3>({s[0], new_ND(info), s[1]});
+	}
+
+	void erase(int ind) {
+		auto s = split<3>({ind, ind+1});
+		merge<2>({s[0], s[2]});
+	}
+
+	T operator[](int ind) {
+		assert(0 <= ind && ind < root->sz);
+		ND* x = root;
+		x->push();
+		for(int ra = 0, nra = getl(*x); nra != ind; nra = ra + getl(*x)) {
+			if(nra < ind) ra = nra + 1, x = x->r;
+			else x = x->l;
+			x->push();
+		}
+		return x->info;
+	}
+};
+
+struct Node {
+	using T = int;
+	T info;
+	Node *l, *r;
+	int sz;
+	uint64_t h;
+	// more fields here
+
+	Node(T i): info(i), l(0), r(0), sz(1), h(rng()), plus(0) {}
+
+	void push() {}
+	void pull() {
+		sz = 1;
+		for(auto c: {l, r}) 
+			if(c) sz += c->sz;
+	}
+};
+
+struct MyTreap : Treap<Node> {
+	MyTreap(int max): Treap<Node>(max) {}
+	// new methods here
 };
