@@ -71,16 +71,16 @@ int parallel(point a, point b) {
 // CORNER: a == b
 struct segment {
 	point a, b;
-
+	
 	segment(): a(), b() {}
 	segment(point _a, point _b): a(_a), b(_b) {}
 
-	point v() { return b - a; }
-};
+	point vec() { return b - a; }
 
-bool contains(segment r, point p) {
-	return r.a==p || r.b==p || parallel(r.a-p,r.b-p) == -1;
-}
+	bool contains(point p) {
+		return a == p || b == p || parallel(a-p, b-p) == -1;
+	}
+};
 
 bool intersects(segment r, segment s) {
 	if(contains(r, s.a) || contains(r, s.b) || contains(s, r.a) || contains(s, r.b)) return 1;
@@ -89,7 +89,7 @@ bool intersects(segment r, segment s) {
 }
 
 bool parallel(segment r, segment s) {
-	return parallel(r.v(), s.v());
+	return parallel(r.vec(), s.vec());
 }
 
 struct polygon {

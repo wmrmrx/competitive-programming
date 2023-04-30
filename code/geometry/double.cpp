@@ -86,35 +86,35 @@ struct segment {
 	segment() {}
 	segment(point _a, point _b): a(_a), b(_b) {}
 
-	point v() { return b - a; }
+	point vec() { return b - a; }
+
+	bool contains(point p) {
+		return a == p || b == p || parallel(a-p, b-p) == -1;
+	}
+
+	point proj(point p) { // projection of p onto segment
+		p = p - a;
+		point v = vec();
+		return a + v*((p*v)/(v*v));
+	}
 
 };
 
-bool contains(segment r, point p) {
-	return r.a==p || r.b==p || parallel(r.a-p, r.b-p) == -1;
-}
-
 bool intersects(segment r, segment s) {
-	if(contains(r, s.a) || contains(r, s.b) || contains(s, r.a) || contains(s, r.b)) return 1;
+	if(r.contains(s.a) || r.contains(s.b) || s.contains(r.a) || s.contains(r.b)) return 1;
 	return left(r.a, r.b, s.a) != left(r.a, r.b, s.b) && 
 		left(s.a, s.b, r.a) != left(s.a, s.b, r.b);
 }
 
 bool parallel(segment r, segment s) {
-	return parallel(r.v(), s.v());
+	return parallel(r.vec(), s.vec());
 }
 
 point line_intersection(segment r, segment s) {
 	if(parallel(r, s)) return point(HUGE_VAL, HUGE_VAL);
-	point vr = r.v(), vs = s.v();
+	point vr = r.vec(), vs = s.vec();
 	double cr = vr ^ r.a, cs = vs ^ s.a;
 	return (vs*cr - vr*cs) / (vr ^ vs);
-}
-
-point proj(segment r, point p) {
-	p = p - r.a;
-	point v = r.v();
-	return r.a + v*((p*v)/(v*v));
 }
 
 struct polygon {
@@ -208,5 +208,42 @@ struct polygon {
 				^ (rhs.vp[(j + 1) % rhs.n] - rhs.vp[j % rhs.n]);
 		}
 		return polygon(sum);
+	}
+};
+// Circle
+//  Basic structure of circle and operations related with it. This template works
+// only with double numbers since most of the operations of a circle can't be 
+// done with only integers. Therefore, this template depends on point_double.cpp.
+// 
+// All operations' time complexity are O(1)
+
+const double PI = acos(-1);
+
+struct circle {
+	point o; double r;
+	circle() {}
+	circle(point _o, double _r) : o(_o), r(_r) {}
+	bool has(point p) { 
+		return (o - p).norm2() < r*r + EPS;
+	}
+	vector<point> operator/(circle c) { // Intersection of circles.
+		vector<point> inter;                   // The points in the output are in ccw order.
+		double d = (o - c.o).norm();
+		if(r + c.r < d - EPS || d + min(r, c.r) < max(r, c.r) - EPS)
+			return {};
+		double x = (r*r - c.r*c.r + d*d) / (2*d);
+		double y = sqrt(r*r - x*x);
+		point v = (c.o - o) / d;
+		inter.pb(o + v*x + v.rotated(cw90)*y);
+		if(y > EPS) inter.pb(o + v*x + v.rotated(ccw90)*y);
+		return inter;
+	}
+	vector<point> tang(point p){
+		double d = sqrt((p - o).norm2() - r*r);
+		return *this / circle(p, d);
+	}
+	bool in(circle c){ // non strictly inside
+		double d = (o - c.o).norm();
+		return d + r < c.r + EPS;
 	}
 };
