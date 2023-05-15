@@ -19,13 +19,19 @@ template<typename SEG, bool EDGE> struct HLD {
 		int t = -1, cnt = 0;
 		function<void(int,int)> dfs = [&](int u, int p) {
 			tin[u] = ++t;
-			bool fst = true;
+			bool heavy = true;
 			for(int v: g[u]) if(v != p) {
-				anc[v] = fst ? anc[u] : u;
-				if(fst) ini[v] = ini[u], chain[v] = chain[u];
-				else ini[v] = t, chain[v] = ++cnt;
+				if(heavy) {
+					anc[v] = anc[u];
+					ini[v] = ini[u];
+					chain[v] = chain[u];
+				} else {
+					anc[v] = u;
+					ini[v] = t;
+					chain[v] = ++cnt;
+				}
 				dfs(v, u);
-				fst = false;
+				heavy = false;
 			}
 			tout[u] = t;
 		};
