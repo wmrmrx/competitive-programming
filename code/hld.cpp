@@ -1,61 +1,56 @@
+// if EDGE is true, the child of the edge represents it
 template<typename SEG, bool EDGE> struct HLD {
-	int n;
-	vector<int> anc, dep, tin, tout, ini, chain;
+	vector<int> dad, in, out, h;
+	// dad[u]: self-explaining
+	// in[u], out[u]: time of visit in dfs of vertex u
+	// h[u]: highest ancestor from same hld chain ("head")
+	// 	 two vertices u and v are from the same chain iff h[u] == h[v]
 	SEG seg;
 
-	HLD(int _n, vector<int> g[]): 
-		n(_n), anc(n), dep(n+1), tin(n), tout(n), ini(n), chain(n), seg(n) {
-		vector<int> sub(n, 1);
-		function<void(int, int)> pre = [&](int u, int p) {
-			for(int v: g[u]) if(v != p) {
-				dep[v] = dep[u] + 1;
-				pre(v, u);
-				sub[u] += sub[v];
+	HLD(int n, vector<int> g[]): dad(n), in(n), out(n), h(n), seg(n) {
+		int t = -1;
+		function<void(int)> dfs = [&](int u) {
+			in[u] = ++t;
+			int mx = -1;
+			for(int &v: g[u]) if(v != dad[u]) {
+				dad[v] = u;
+				h[v] = g[u][0] == v ? h[u] : v;
+				dfs(v);
+				if(out[v] - in[v] > mx) 
+					mx = out[v] - in[v], swap(g[u][0], v);
 			}
-			for(int i=1;i<int(g[u].size());i++) if(sub[g[u][i]] > sub[g[u][0]])
-				swap(g[u][i], g[u][0]);
+			out[u] = t;
 		};
-		pre(0, 0);
-		int t = -1, cnt = 0;
-		function<void(int,int)> dfs = [&](int u, int p) {
-			tin[u] = ++t;
-			bool heavy = true;
-			for(int v: g[u]) if(v != p) {
-				if(heavy) {
-					anc[v] = anc[u];
-					ini[v] = ini[u];
-					chain[v] = chain[u];
-				} else {
-					anc[v] = u;
-					ini[v] = t;
-					chain[v] = ++cnt;
-				}
-				dfs(v, u);
-				heavy = false;
-			}
-			tout[u] = t;
-		};
-		dep[n] = -1;
-		anc[0] = n;
-		dfs(0, 0);
+		dfs(0); t = -1; dfs(0); // yes, twice 
 	}
 
-	// If EDGE, the child u of an edge represents it
-	template<typename T> void update(int u, T val) {
-		seg.update(tin[u], val);
+	// if EDGE is true, the child of the edge represents it
+	template<typename T> 
+	void update(int u, T val) {
+		seg.update(in[u], val);
 	}
 
-	template<typename RES> RES query(int u, int v) {
+	// replace seg.query for seg.update if lazy operations needed
+	template<typename RES> 
+	RES query_path(int u, int v) {
 		RES res = RES();
-		while(chain[u] != chain[v]) {
-			if(dep[anc[u]] < dep[anc[v]]) swap(u, v);
-			res = res + seg.query(ini[u], tin[u]);
-			u = anc[u];
+		while(h[u] != h[v]) {
+			if(in[h[u]] < in[h[v]]) swap(u, v);
+			res = res + seg.query(in[h[u]], in[u]);
+			u = dad[h[u]];
 		}
-		if(tin[u] > tin[v]) swap(u, v);
+		if(in[u] > in[v]) swap(u, v);
 		// u is now the LCA of u and v
-		if(tin[u] + EDGE <= tin[v]) 
-			res = res + seg.query(tin[u] + EDGE, tin[v]);
+		if(in[u] + EDGE <= in[v]) 
+			res = res + seg.query(in[u] + EDGE, in[v]);
 		return res;
 	}
+
+	template<typename RES> 
+	RES query_subtree(int u) {
+		if(in[u] + EDGE <= out[u])
+			return seg.query(in[u] + EDGE, out[u]);
+		return RES();
+	}
+
 };
