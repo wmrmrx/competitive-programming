@@ -1,16 +1,17 @@
 // if EDGE is true, the child of the edge represents it
 template<typename SEG, bool EDGE> struct HLD {
-	vector<int> dad, in, out, h;
+	vector<int> dad, pos, in, out, h;
 	// dad[u]: self-explaining
+	// pos[k]: k-th vertex to be visited in dfs order
 	// in[u], out[u]: time of visit in dfs of vertex u
 	// h[u]: highest ancestor from same hld chain ("head")
 	// 	 two vertices u and v are from the same chain iff h[u] == h[v]
 	SEG seg;
 
-	HLD(int n, vector<int> g[]): dad(n), in(n), out(n), h(n), seg(n) {
+	HLD(int n, vector<int> g[]): dad(n), pos(n), in(n), out(n), h(n), seg(n) {
 		int t = -1;
 		function<void(int)> dfs = [&](int u) {
-			in[u] = ++t;
+			pos[ in[u] = ++t ] = u;
 			int mx = -1;
 			for(int &v: g[u]) if(v != dad[u]) {
 				dad[v] = u;
@@ -24,13 +25,13 @@ template<typename SEG, bool EDGE> struct HLD {
 		dfs(0); t = -1; dfs(0); // yes, twice 
 	}
 
-	// if EDGE is true, the child of the edge represents it
-	template<typename T> 
-	void update(int u, T val) {
-		seg.update(in[u], val);
+	// if EDGE == true, the child of an edge represents it
+	template<typename T>
+	void updade(int u, T val) {
+		seg.update(in[u] + EDGE, val);
 	}
 
-	// replace seg.query for seg.update if lazy operations needed
+	// If range update is needed, just replace seg.query with seg.update
 	template<typename RES> 
 	RES query_path(int u, int v) {
 		RES res = RES();
@@ -52,5 +53,4 @@ template<typename SEG, bool EDGE> struct HLD {
 			return seg.query(in[u] + EDGE, out[u]);
 		return RES();
 	}
-
 };
