@@ -18,13 +18,11 @@ private:
 
 	void push(const int nid, const int l, const int r) {
 		tag[nid].apply(info[nid], l, r);
-
 		if(l != r) {
 			const int m = (l + r)/2, x = nid + 1, y = nid + 2*(m - l + 1);
 			tag[x].add(tag[nid]);
 			tag[y].add(tag[nid]);
 		}
-
 		tag[nid] = Tag();
 	}
 
@@ -70,6 +68,13 @@ public:
 struct Info {
 	using T = int;
 	int x;
+	Info(): x(numeric_limits<T>::max()) {}
+	Info(T val): x(val) {}
+	friend Info operator+(const Info lhs, const Info rhs) {
+		Info res;
+		res.x = min(lhs.x, rhs.x);
+		return res;
+	}
 
 	struct Tag {
 		int tag;
@@ -82,13 +87,4 @@ struct Info {
 			info.x += tag;
 		}
 	};
-
-	Info(): x(numeric_limits<T>::max()) {}
-	Info(T val): x(val) {}
-
-	friend Info operator+(const Info lhs, const Info rhs) {
-		Info res;
-		res.x = min(lhs.x, rhs.x);
-		return res;
-	}
 };
