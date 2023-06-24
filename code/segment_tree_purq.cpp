@@ -2,22 +2,22 @@ template <typename Info, typename T = typename Info::T>
 class SegPURQ {
 private: 
 	int size;
-	vector<Info> data;
+	vector<Info> info;
 
 	void build(int nid, const int l, const int r, const vector<T>& v) {
 		if(l == r) {
-			data[nid] = Info(v[l]);
+			info[nid] = Info(v[l]);
 			return;
 		}
 		const int m = (l + r)/2;
 		build(nid + 1, l, m, v);
 		build(nid + 2*(m - l + 1), m+1, r, v);
-		data[nid] = data[nid + 1] + data[nid + 2*(m - l + 1)];
+		info[nid] = info[nid + 1] + info[nid + 2*(m - l + 1)];
 	}
 
 	Info query(int nid, const int l, const int r, const int ql, const int qr) const {
 		if(qr < l || r < ql) return Info();
-		if(ql <= l && r <= qr) { return data[nid]; };
+		if(ql <= l && r <= qr) { return info[nid]; };
 		const int m = (l + r)/2;
 		return query(nid + 1, l, m, ql, qr) + query(nid + 2*(m - l + 1), m+1, r, ql, qr);
 	}
@@ -25,22 +25,22 @@ private:
 	void update(int nid, const int l, const int r, const int pos, const T& val) {
 		if(r < pos || pos < l) return;
 		if(l == r) { 
-			data[nid] = Info(val);
+			info[nid] = Info(val);
 			return; 
 		}
 		const int m = (l + r)/2;
 		update(nid + 1, l, m, pos, val); 
 		update(nid + 2*(m - l + 1), m+1, r, pos, val);
-		data[nid] = data[nid + 1] + data[nid + 2*(m - l + 1)];
+		info[nid] = info[nid + 1] + info[nid + 2*(m - l + 1)];
 	}
 public:
 	SegPURQ(const vector<T>& v): size(v.size()) {
-		data.resize(2*size - 1);
+		info.resize(2*size - 1);
 		build(0, 0, size-1, v);
 	}
 
 	SegPURQ(int _size): size(_size) {
-		data.resize(2*size - 1);
+		info.resize(2*size - 1);
 	}
 
 	Info query(const int ql, const int qr) const {
