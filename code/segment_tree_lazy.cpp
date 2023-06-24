@@ -20,8 +20,8 @@ private:
 		tag[nid].apply(info[nid], l, r);
 		if(l != r) {
 			const int m = (l + r)/2, x = nid + 1, y = nid + 2*(m - l + 1);
-			tag[x].add(tag[nid]);
-			tag[y].add(tag[nid]);
+			tag[x] += tag[nid];
+			tag[y] += tag[nid];
 		}
 		tag[nid] = Tag();
 	}
@@ -38,7 +38,7 @@ private:
 		push(nid, l, r);
 		if(qr < l || r < ql) return;
 		if(ql <= l && r <= qr) { 
-			tag[nid].add(Tag(val));
+			tag[nid] += Tag(val);
 			push(nid, l, r);
 			return; 
 		}
@@ -80,7 +80,7 @@ struct Info {
 		int tag;
 		Tag(): tag(0) {}
 		Tag(T val): tag(val) {}
-		void add(Tag rhs) {
+		void operator+=(Tag rhs) {
 			tag += rhs.tag;
 		}
 		void apply(Info& info, const int l, const int r) const {
