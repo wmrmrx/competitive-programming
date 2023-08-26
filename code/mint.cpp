@@ -18,6 +18,6 @@ struct mint {
 			res*=p;
 		return res;
 	}
+	friend ostream& operator<<(ostream &o, mint x) { return o << x.x; }
 };
-
 using Z = mint<998244353>;
