@@ -1,27 +1,28 @@
 #[allow(dead_code)]
-mod util {
-    use std::cell::UnsafeCell;
-    use std::io::{BufReader, BufWriter, Read, Write};
-
-    pub struct IO<'a, R: Read, W: Write> {
-        reader: BufReader<R>,
-        writer: BufWriter<W>,
+mod prelude {
+    #[allow(unused_imports)]
+    use std::{
+        cell::UnsafeCell,
+        fmt::{Debug, Display},
+        io::{BufRead, BufReader, BufWriter, StdinLock, StdoutLock, Write},
+    };
+    #[derive(Debug)]
+    pub struct System {
+        reader: BufReader<StdinLock<'static>>,
+        writer: BufWriter<StdoutLock<'static>>,
         buffer: UnsafeCell<String>,
-        tokens: std::str::SplitWhitespace<'a>,
+        tokens: std::str::SplitWhitespace<'static>,
     }
-
-    impl<R: Read, W: Write> IO<'_, R, W> {
-        pub fn new(reader: R, writer: W) -> Self {
+    impl System {
+        pub fn new() -> Self {
             Self {
-                reader: BufReader::new(reader),
-                writer: BufWriter::new(writer),
+                reader: BufReader::new(std::io::stdin().lock()),
+                writer: BufWriter::new(std::io::stdout().lock()),
                 buffer: UnsafeCell::new(String::new()),
                 tokens: "".split_whitespace(),
             }
         }
-
-        pub fn read<T: std::str::FromStr<Err = impl std::fmt::Debug>>(&mut self) -> T {
-            use std::io::BufRead;
+        pub fn read<T: std::str::FromStr<Err = impl Debug>>(&mut self) -> T {
             loop {
                 if let Some(s) = self.tokens.next() {
                     break s;
@@ -37,179 +38,68 @@ mod util {
             .parse::<T>()
             .unwrap()
         }
-
-        pub fn readu(&mut self) -> usize {
-            self.read::<usize>()
+        pub fn read_raw(&mut self) -> Vec<u8> {
+            self.read::<String>().into_bytes()
         }
-
-        pub fn readi(&mut self) -> i64 {
-            self.read::<i64>()
-        }
-
-        pub fn read_str(&mut self) -> String {
-            self.read::<String>()
-        }
-
-        pub fn read_vec<T: std::str::FromStr<Err = impl std::fmt::Debug>>(
-            &mut self,
-            size: usize,
-        ) -> Vec<T> {
-            (0..size).map(|_| self.read()).collect()
-        }
-
-        pub fn readu_vec(&mut self, size: usize) -> Vec<usize> {
-            self.read_vec::<usize>(size)
-        }
-
-        pub fn readi_vec(&mut self, size: usize) -> Vec<i64> {
-            self.read_vec::<i64>(size)
-        }
-
-        pub fn read_arr<T: std::str::FromStr<Err = impl std::fmt::Debug>, const N: usize>(
-            &mut self,
-        ) -> [T; N] {
-            std::array::from_fn(|_| self.read())
-        }
-
-        pub fn readu_arr<const N: usize>(&mut self) -> [usize; N] {
-            self.read_arr::<usize, N>()
-        }
-
-        pub fn readi_arr<const N: usize>(&mut self) -> [i64; N] {
-            self.read_arr::<i64, N>()
-        }
-
-        pub fn put<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+        pub fn print<T: Display>(&mut self, t: T) -> &mut Self {
             let _ = write!(self.writer, "{t}");
             self
         }
-
-        pub fn putln<T: std::fmt::Display>(&mut self, t: T) -> &mut Self {
+        pub fn println<T: Display>(&mut self, t: T) -> &mut Self {
             let _ = writeln!(self.writer, "{t}");
             self
         }
-
-        pub fn ln<T: std::fmt::Display>(&mut self) -> &mut Self {
+        pub fn ln(&mut self) -> &mut Self {
             let _ = writeln!(self.writer);
             self
         }
-
         pub fn ws(&mut self) -> &mut Self {
             let _ = write!(self.writer, " ");
             self
         }
-
         pub fn flush(&mut self) {
             let _ = self.writer.flush();
         }
     }
 
-    pub fn mat1<T: Clone>(n1: usize, val: T) -> Box<[T]> {
-        vec![val; n1].into_boxed_slice()
+    pub fn default<T: std::default::Default>() -> T {
+        T::default()
     }
-
-    pub fn mat2<T: Clone>(n1: usize, n2: usize, val: T) -> Box<[Box<[T]>]> {
-        mat1(n1, mat1(n2, val))
-    }
-
-    pub fn mat3<T: Clone>(n1: usize, n2: usize, n3: usize, val: T) -> Box<[Box<[Box<[T]>]>]> {
-        mat1(n1, mat2(n2, n3, val))
-    }
-
-    /// Copied from https://github.com/EgorKulikov/rust_algo/blob/master/algo_lib/src/misc/recursive_function.rs
-    use std::marker::PhantomData;
-    macro_rules! recursive_function {
-        ($name: ident, $trait: ident, ($($type: ident $arg: ident,)*)) => {
-            pub trait $trait<$($type, )*Output> {
-                fn call(&mut self, $($arg: $type,)*) -> Output;
-            }
-
-            pub struct $name<F, $($type, )*Output>
-            where
-                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
-            {
-                f: std::cell::UnsafeCell<F>,
-                $($arg: PhantomData<$type>,
-                )*
-                phantom_output: PhantomData<Output>,
-            }
-
-            impl<F, $($type, )*Output> $name<F, $($type, )*Output>
-            where
-                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
-            {
-                pub fn new(f: F) -> Self {
-                    Self {
-                        f: std::cell::UnsafeCell::new(f),
-                        $($arg: Default::default(),
-                        )*
-                        phantom_output: Default::default(),
-                    }
-                }
-            }
-
-            impl<F, $($type, )*Output> $trait<$($type, )*Output> for $name<F, $($type, )*Output>
-            where
-                F: FnMut(&mut dyn $trait<$($type, )*Output>, $($type, )*) -> Output,
-            {
-                fn call(&mut self, $($arg: $type,)*) -> Output {
-                    unsafe { (*self.f.get())(self, $($arg, )*) }
-                }
-            }
-        }
-    }
-    recursive_function!(F0, Callable0, ());
-    recursive_function!(F1, Callable1, (A1 a1,));
-    recursive_function!(F2, Callable2, (A1 a1, A2 a2,));
-    recursive_function!(F3, Callable3, (A1 a1, A2 a2, A3 a3,));
-    recursive_function!(F4, Callable4, (A1 a1, A2 a2, A3 a3, A4 a4,));
-    recursive_function!(F5, Callable5, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,));
-    recursive_function!(F6, Callable6, (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,));
 }
+use prelude::{default, System};
 
 #[allow(unused_imports)]
-use std::{
-    collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque},
-    io::{Read, Write},
-    ops::Bound::*,
-};
-use util::*;
-#[allow(dead_code, non_camel_case_types)]
+use std::collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque};
+#[allow(non_camel_case_types, dead_code)]
 type u64 = usize;
 
-///////////////////////
-// END TEMPLATE CODE //
-///////////////////////
-
-#[derive(Debug)]
-struct Solver {}
-
-impl Solver {
-    fn new() -> Self {
-        Self {}
-    }
-
-    fn clean(&mut self) {
-        *self = Solver::new();
-    }
+#[derive(Debug, Default)]
+struct Ctx {
+    _adj: Vec<Vec<u64>>,
 }
 
-impl Solver {
-    fn solve<R: Read, W: Write>(&mut self, io: &mut IO<'_, R, W>) {
+impl Ctx {
+    fn new() -> Self {
+        default()
     }
+
+    fn reset(&mut self) {}
+}
+
+fn solve(sys: &mut System) {
+    sys.println("Hello World!");
 }
 
 fn main() {
-    let mut io = IO::new(std::io::stdin().lock(), std::io::stdout().lock());
-    let mut solver = Solver::new();
+    let mut sys = System::new();
+    let mut ctx = Ctx::new();
 
-    let t: u64 = 1;
-    //let t: u64 = io.read();
+    let t: u64 = sys.read();
 
     for case in 1..=t {
-        solver.solve(&mut io);
+        solve(&mut sys);
         if case != t {
-            solver.clean();
+            ctx.reset();
         }
     }
 }
