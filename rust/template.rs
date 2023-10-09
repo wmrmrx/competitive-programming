@@ -38,6 +38,11 @@ mod prelude {
             .parse::<T>()
             .unwrap()
         }
+        pub fn read_arr<T: std::str::FromStr<Err = impl Debug>, const N: usize>(
+            &mut self,
+        ) -> [T; N] {
+            std::array::from_fn(|_| self.read())
+        }
         pub fn read_raw(&mut self) -> Vec<u8> {
             self.read::<String>().into_bytes()
         }
@@ -101,7 +106,7 @@ fn main() {
     let mut ctx = Ctx::new();
 
     const MULTICASE: bool = false;
-    let t: u64 = if MULTICASE{ sys.read() } else { 1 };
+    let t: u64 = if MULTICASE { sys.read() } else { 1 };
 
     for case in 1..=t {
         solve(&mut sys, &mut ctx);
