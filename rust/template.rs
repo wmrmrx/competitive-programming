@@ -74,19 +74,32 @@ mod prelude {
         T::default()
     }
 }
+#[allow(unused_imports)]
 use prelude::{default, System};
-
 #[allow(unused_imports)]
 use std::collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, VecDeque as Deque};
 #[allow(non_camel_case_types, dead_code)]
 type u64 = usize;
+
+#[allow(unused_macros)]
+macro_rules! vbox {
+    () => (
+        vec![].into_boxed_slice()
+    );
+    ($elem:expr; $n:expr) => (
+        vec![$elem; $n].into_boxed_slice()
+    );
+    ($($x:expr),+ $(,)?) => (
+        Box::new([$($x),+])
+    );
+}
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #[derive(Debug, Default)]
 struct Ctx {
-    _adj: Vec<Vec<u64>>,
+    _adj: Vec<Vec<usize>>,
 }
 
 impl Ctx {
