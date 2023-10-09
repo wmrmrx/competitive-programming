@@ -73,6 +73,9 @@ use std::collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, Vec
 #[allow(non_camel_case_types, dead_code)]
 type u64 = usize;
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 #[derive(Debug, Default)]
 struct Ctx {
     _adj: Vec<Vec<u64>>,
@@ -86,18 +89,22 @@ impl Ctx {
     fn reset(&mut self) {}
 }
 
-fn solve(sys: &mut System) {
+fn solve(sys: &mut System, _ctx: &mut Ctx) {
     sys.println("Hello World!");
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 fn main() {
     let mut sys = System::new();
     let mut ctx = Ctx::new();
 
-    let t: u64 = sys.read();
+    const MULTICASE: bool = false;
+    let t: u64 = if MULTICASE{ sys.read() } else { 1 };
 
     for case in 1..=t {
-        solve(&mut sys);
+        solve(&mut sys, &mut ctx);
         if case != t {
             ctx.reset();
         }
