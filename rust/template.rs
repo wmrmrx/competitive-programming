@@ -43,6 +43,9 @@ mod prelude {
         ) -> [T; N] {
             std::array::from_fn(|_| self.read())
         }
+        pub fn read_vec<T: std::str::FromStr<Err = impl Debug>>(&mut self, size: usize) -> Vec<T> {
+            (0..size).map(|_| self.read()).collect()
+        }
         pub fn read_raw(&mut self) -> Vec<u8> {
             self.read::<String>().into_bytes()
         }
