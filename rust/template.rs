@@ -82,15 +82,12 @@ use std::collections::{BTreeMap as Map, BTreeSet as Set, BinaryHeap as Heap, Vec
 type u64 = usize;
 
 #[allow(unused_macros)]
-macro_rules! vbox {
-    () => (
-        vec![].into_boxed_slice()
-    );
+macro_rules! matrix {
     ($elem:expr; $n:expr) => (
         vec![$elem; $n].into_boxed_slice()
     );
-    ($($x:expr),+ $(,)?) => (
-        Box::new([$($x),+])
+    ($elem:expr; $n:expr, $($rest:expr),+) => (
+        vec![matrix![$elem; $($rest),+]; $n].into_boxed_slice()
     );
 }
 
