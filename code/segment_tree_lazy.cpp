@@ -1,4 +1,4 @@
-template <typename Info, typename T = typename Info::T, typename Tag = typename Info::Tag> 
+template <typename Info, typename T = typename Info::T, typename U = typename Info::U, typename Tag = typename Info::Tag> 
 class SegLazy {
 private: 
 	int size;
@@ -34,7 +34,7 @@ private:
 		return query(x, l, m, ql, qr) + query(y, m+1, r, ql, qr);
 	}
 
-	void update(const int nid, const int l, const int r, const int ql, const int qr, const T& val) {
+	void update(const int nid, const int l, const int r, const int ql, const int qr, const U& val) {
 		push(nid, l, r);
 		if(qr < l || r < ql) return;
 		if(ql <= l && r <= qr) { 
@@ -59,7 +59,7 @@ public:
 		return query(0, 0, size-1, ql, qr);
 	}
 
-	void update(const int ql, const int qr, const T& val) {
+	void update(const int ql, const int qr, const U& val) {
 		assert(0 <= ql && ql <= qr && qr < size);
 		update(0, 0, size-1, ql, qr, val);
 	}
@@ -76,10 +76,11 @@ struct Info {
 		return res;
 	}
 
+	using U = int;
 	struct Tag {
 		int tag;
 		Tag(): tag(0) {}
-		Tag(T val): tag(val) {}
+		Tag(U val): tag(val) {}
 		void operator+=(Tag rhs) {
 			tag += rhs.tag;
 		}
