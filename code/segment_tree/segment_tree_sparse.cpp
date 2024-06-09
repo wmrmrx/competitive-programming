@@ -1,5 +1,5 @@
 template <typename Info, typename T = typename Info::T>
-struct SparseSeg {
+struct SegSparse {
 	int n, root = 0;
 	vector<int> nl, nr;
 	vector<Info> info;
@@ -42,5 +42,5 @@ struct SparseSeg {
 		return qry(root, 0, n-1, ql, qr);
 	}
 
-	SparseSeg(int _n): n(_n), nl(1), nr(1), info(1) {}
+	SegSparse(int _n): n(_n), nl(1), nr(1), info(1) {}
 };

@@ -53,17 +53,3 @@ public:
 		update(0, 0, size-1, pos, val);
 	}
 };
-
-struct Min {
-	using T = int;
-	int x;
-
-	Min(): x(numeric_limits<T>::max()) {}
-	Min(T _x): x(_x) {}
-
-	friend Min operator+(const Min lhs, const Min rhs) {
-		Min res;
-		res.x = min(lhs.x, rhs.x);
-		return res;
-	}
-};
