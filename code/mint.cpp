@@ -28,8 +28,7 @@ using Z = mint<998'244'353>;
 struct hash_mint {
 	mint<3000000019> x;
 	mint<3000000109> y;
-	hash_mint(): x(0), y(0) {}
-	hash_mint(int _x, int _y): x(_x), y(_y) {}
+	hash_mint(int v = 0): x(v), y(v) {}
 	hash_mint(mint<3000000019> _x, mint<3000000109> _y): x(_x), y(_y) {}
 	hash_mint& operator+=(hash_mint rhs) { this->x += rhs.x; this->y += rhs.y; return *this; }
 	hash_mint& operator-=(hash_mint rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
