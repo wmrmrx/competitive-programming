@@ -33,10 +33,12 @@ struct SparseSeg {
 	}
 
 	void update(int pos, T val) {
+		assert(0 <= pos && pos < n);
 		upd(root, 0, n-1, pos, val);
 	}
 
 	Info query(int ql, int qr) {
+		assert(0 <= ql && ql <= qr && qr < n);
 		return qry(root, 0, n-1, ql, qr);
 	}
 
