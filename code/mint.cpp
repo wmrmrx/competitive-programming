@@ -1,19 +1,17 @@
-// Mint
-template <const int MOD>
-struct mint {
-	int x;
+template <const int64_t MOD> struct mint {
+	int32_t x;
 	mint(): x(0) {}
-	mint(int _x): x(_x%MOD<0?_x%MOD+MOD:_x%MOD) {}
+	mint(int64_t _x): x(_x%MOD<0?_x%MOD+MOD:_x%MOD) {}
 	mint& operator+=(mint rhs) { x+=rhs.x; if(x>=MOD) x-=MOD; return *this; }
 	mint& operator-=(mint rhs) { x-=rhs.x; if(x<0)x+=MOD; return *this; }
-	mint& operator*=(mint rhs) { x*=rhs.x; x%=MOD; return *this; }
+	mint& operator*=(mint rhs) { x=int64_t(x)*int64_t(rhs.x)%MOD; return *this; }
 	mint& operator/=(mint rhs) { *this *= rhs.inv(); return *this; }
 	mint operator+(mint rhs) { mint res=*this; return res+=rhs; }
 	mint operator-(mint rhs) { mint res=*this; return res-=rhs; }
 	mint operator*(mint rhs) { mint res=*this; return res*=rhs; }
 	mint operator/(mint rhs) { mint res=*this; return res/=rhs; }
 	mint inv() { return this->pow(MOD-2); }
-	mint pow(int e) {
+	mint pow(int64_t e) {
 		mint res(1);
 		for(mint p=*this;e>0;e/=2,p*=p) if(e%2)
 			res*=p;
@@ -22,26 +20,6 @@ struct mint {
 	bool operator<(mint rhs) { return x < rhs.x; }
 	bool operator!=(mint rhs) { return x != rhs.x; }
 	bool operator==(mint rhs) { return x == rhs.x; }
+	friend ostream& operator<<(ostream& o, mint m) { return o << m.x; }
 };
 using Z = mint<998'244'353>;
- 
-struct hash_mint {
-	mint<3000000019> x;
-	mint<3000000109> y;
-	hash_mint(int v = 0): x(v), y(v) {}
-	hash_mint(mint<3000000019> _x, mint<3000000109> _y): x(_x), y(_y) {}
-	hash_mint& operator+=(hash_mint rhs) { this->x += rhs.x; this->y += rhs.y; return *this; }
-	hash_mint& operator-=(hash_mint rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
-	hash_mint& operator*=(hash_mint rhs) { this->x *= rhs.x; this->y *= rhs.y; return *this; }
-	hash_mint& operator/=(hash_mint rhs) { this->x /= rhs.x; this->y /= rhs.y; return *this; }
-	hash_mint operator+(hash_mint rhs) { hash_mint res = *this; return res += rhs; }
-	hash_mint operator-(hash_mint rhs) { hash_mint res = *this; return res -= rhs; }
-	hash_mint operator*(hash_mint rhs) { hash_mint res = *this; return res *= rhs; }
-	hash_mint operator/(hash_mint rhs) { hash_mint res = *this; return res /= rhs; }
-	hash_mint inv() { return hash_mint(1, 1) / *this; }
-	hash_mint pow(int e) { return hash_mint(x.pow(e), y.pow(e)); }
-	bool operator==(hash_mint rhs) { return x == rhs.x && y == rhs.y; }
-	bool operator!=(hash_mint rhs) { return x != rhs.x || y != rhs.y; }
-	bool operator<(hash_mint rhs) { return x != rhs.x ? x < rhs.x : y < rhs.y; }
-};
-using ZZ = hash_mint;
