@@ -31,8 +31,8 @@ struct Comb {
     vector<Z> _inv;
     
     Comb() : n{0}, _fac{1}, _invfac{1}, _inv{0} {}
-    Comb(int n) : Comb() {
-        init(n);
+    Comb(int _n) : Comb() {
+        init(_n);
     }
     void init(int m) {
         if (m <= n) return;
@@ -62,8 +62,8 @@ struct Comb {
         if (m > n) init(2 * m);
         return _inv[m];
     }
-    Z binom(int n, int m) {
-        if (n < m || m < 0) return 0;
-        return fac(n) * invfac(m) * invfac(n - m);
+    Z binom(int _n, int m) {
+        if (_n < m || m < 0) return 0;
+        return fac(_n) * invfac(m) * invfac(_n - m);
     }
 } comb;
